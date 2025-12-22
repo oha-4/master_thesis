@@ -35,8 +35,10 @@
 \usepackage{amssymb}
 \usepackage{amsthm}
 \usepackage{bm}
+\usepackage{comment}
 \usepackage{mathtools}
 \usepackage{thmtools}
+\usepackage{prettyref}
 
 \declaretheoremstyle[
 	notefont=\mdseries, notebraces={（}{）},
@@ -46,9 +48,17 @@
 
 \newcommand{\descitem}[1]{\item[#1]\mbox{}\\}
 
+\newrefformat{chap}{第\ref*{#1}章}
+\newrefformat{sec}{第\ref*{#1}節}
+\newrefformat{subsec}{第\ref*{#1}項}
+\newrefformat{subsubsec}{第\ref*{#1}目}
+\newrefformat{fig}{図\ref*{#1}}
+\newrefformat{alg}{アルゴリズム\ref*{#1}}
+\newcommand\aref[1]{\hyperref[#1]{\prettyref{#1}}}
+
 \makeatletter
 
-\renewcommand{\fps@algorithm}{ht}
+\renewcommand{\fps@algorithm}{H}
 \renewcommand{\ALG@name}{アルゴリズム}
 \renewcommand{\algorithmicrequire}{\textbf{入力：}}
 \renewcommand{\algorithmicensure}{\textbf{出力：}}
@@ -88,9 +98,9 @@
 製造ラインの工程管理，ロボットの動作計画，通信プロトコル，組み込みシステムなど，その適用範囲は多岐にわたる．
 これらのシステムに対し，危険な状態に到達しないというSafetyや，目的とするタスクを無限回完了できるというNon-Blockingを保証することは，システムの信頼性を確保する上で不可欠である．
 
-従来，これらの要求を満たす制御ロジック（動作仕様）の設計は，熟練した技術者の経験や手動による試行錯誤に依存していた．
-しかし，並行して動作する複数のコンポーネントが複雑に相互作用するシステムにおいて，人間の直感だけで全てのコーナーケースを網羅し，デッドロックや禁止状態への到達を防ぐことは極めて困難である．
-設計ミスは手戻りのコストを増大させるだけでなく，運用時の重大な事故につながるリスクも孕んでいる．
+従来，これらの要求を満たす制御ロジック（動作仕様）の設計は，熟練した設計者の経験則や，試行錯誤的な検証に依存していた．
+しかし，並行して動作する複数のコンポーネントが複雑に相互作用するシステムにおいて，人間の直感だけで全ての境界条件や例外ケースを網羅し，デッドロックや禁止状態への到達を防ぐことは極めて困難である．
+設計ミスは再設計のコストを増大させるだけでなく，運用時の重大な事故につながるリスクも孕んでいる．
 
 この課題に対する解決策として，形式手法に基づき，与えられた環境モデルと要求仕様から正しい制御器を自動生成する離散制御器合成（Discrete Controller Synthesis）の研究が進められている~\cite{}．
 離散制御器合成は，環境の可能な振る舞いをすべて考慮した上で，制御可能なアクションを適切に許可・禁止することで，システムが常に仕様を満たすことを数学的に保証する．
@@ -106,26 +116,26 @@
 
 本論文の目的は，DCSにおけるOn-The-Fly探索の効率をさらに向上させるため，従来のReady Abstraction（RA）が抱える構造的な課題を解決する新たな探索指針であるPre-Marking Directionを提案することである．
 
-従来のRAは，探索中に到達したMarked状態への距離を推定し，そこへの再訪問を促すことで効率よく制御器合成することを目指す．
-しかし，実際のシステム要件としてMarkingアクションが与えられた場合，これをMarked状態の問題に変換してRAを適用すると，以下の2つの重大な課題が生じ，探索効率が著しく低下することが判明している．
+従来のRAは，各コンポーネントにおいて局所的に発火可能なアクション（Readyアクション）の情報に基づいて目標までの距離を推定する．
+しかし，この推定手法には以下の構造的な課題が存在する．
 
 \begin{description}
-  \descitem{探索到達済みMarked状態による誘導の不整合}
-  MarkingアクションをMarked状態の問題へ変換した場合，Marked状態となるのはMarkingアクションが発火した直後の状態である．RAはこの発火後の状態への距離を最小化しようとするが，Markingアクションを再び発火させるために真に近づくべきは，そのアクションが有効化される発火の1歩手前の状態である．この目標地点のズレにより，RAのヒューリスティック値が適切なガイダンスとならず，探索の迷走を招く．
-  \descitem{Readyアクションに基づく距離推定の近視眼性}
-  RAは，現在の状態で局所的に発火可能（Ready）なアクションのみをノードとするグラフを構築して距離を推定する．そのため，現在はReadyではないが，将来的にMarkingアクションを発火させるために必須となる遠くにあるアクションが距離計算の考慮から漏れてしまう．結果として，長期的には有望な経路が無視され，手近なアクションばかりが選択され，計算リソースを浪費する．
+  \descitem{同期構造を無視した到達可能性評価の限界}
+  RAは，Readyアクションのみをノードとするグラフ上で距離を推定する．しかし，目標達成に特定のコンポーネント間の同期が不可欠な場合，現在はReadyアクションではないが将来的に同期を解放するために必要な予備アクションが評価から漏れる．その結果，同期ボトルネックを考慮しない近視眼的な経路選択が行われ，探索空間が不必要に拡大する．
+  \descitem{Readyアクション探索に伴う計算負荷}
+  RAは距離推定において，Readyアクション間の遷移コストやその先の距離を考慮し，再帰的に様々なパスを探索して最小値を計算する．この探索は，特にReadyアクションの候補が多い場合に計算コストが増大し，1ステップごとの処理時間を長引かせる要因となる．
 \end{description}
 
-そこで本研究では，Markingアクションそのものに着目し，それが発火可能になるまでの予備動作（Pre-Markingアクション）を考慮した新たな距離推定手法を提案する．
+そこで本研究では，複雑なReadyアクショングラフの探索に依存せず，目標アクションの発火に不可欠な同期イベント（Pre-Markingアクション）を直接的な指針とする新たな距離推定手法を提案する．
 具体的には，以下の項目に取り組む．
 
 \begin{description}
-  \descitem{Markingアクション環境下におけるRAの課題分析}
-  上述した探索到達済みMarked状態による誘導の不整合と，Readyアクション限定による遠方アクションの無視という2つの課題を，具体的なモデルを用いて明らかにする．
+  \descitem{Ready Abstractionの探索特性と課題の分析}
+  Readyアクションを用いた距離推定が，同期を要するシステムにおいて近視眼的な挙動を示す原因と，それによって探索空間が不必要に拡大するメカニズムについて，具体的なモデルを用いて分析する．
   \descitem{Pre-Marking Directionの提案}
-  Markingアクションの発火に不可欠な同期アクションをPre-Markingアクションとして定義し，これを探索の道標とする新たなヒューリスティック手法Pre-Marking Direction（PMD）を提案する．
-  PMDは，各モデル単独での目標までの局所的な距離に加え，他モデルのPre-Markingアクションへの到達待ち時間を考慮した同期制約下の距離を算出し，両者の最大値を用いて探索優先度を決定する．
-  これにより，Ready Abstractionでは考慮が及ばなかったモデル間の同期ボトルネックを明示的に評価し，探索の迷走を防ぐと共に，事前計算を活用した高速なヒューリスティック計算を実現する．
+  目標アクションの発火に不可欠な同期アクションをPre-Markingアクション（PMA）として定義し，これを探索の指針とする新たなヒューリスティック手法Pre-Marking Direction（PMD）を提案する．
+  PMDは，RAのような複雑な探索を行わず，各コンポーネント単体での距離のみを用いた軽量な計算を採用する．
+  PMAが同期構造上の要所を捉えているため，この単純化された指標でも十分な探索性能を発揮でき，計算負荷を抑えつつ同期ボトルネックを考慮した高速な探索を実現する．
   \descitem{評価実験による有効性の検証}
   提案手法を実装し，ベンチマーク問題を用いて従来手法と比較することで，探索状態数や計算時間の削減効果を定量的に評価する．
 \end{description}
@@ -136,17 +146,18 @@
 
 本論文の構成は以下の通りである．
 
-第2章「背景技術」では，本研究の基礎となる離散制御器合成およびDCSの理論的枠組み，On-The-Fly探索アルゴリズム，および既存のヒューリスティック手法であるReady Abstractionについて詳説する．
+\aref{chap:background}「背景技術」では，本研究の基礎となる離散制御器合成およびDCSの理論的枠組み，On-The-Fly探索アルゴリズム，および既存のヒューリスティック手法であるReady Abstractionについて詳説する．
 
-第3章「Ready Abstractionの課題」では，Markingアクションを目標とする問題設定において，既存のRAが抱える構造的な限界と，それによって生じる探索効率の低下について分析する．
+\aref{chap:ready_abstraction_limitations}「Ready Abstractionの課題」では，既存のRAが抱える構造的な限界について述べる．特に，Markingアクションの発火にコンポーネント間の同期が必要な状況において，現状態のReadyアクションのみに基づくRAの推定が機能せず，近視眼的な探索となり探索空間の爆発を招くメカニズムについて分析する．
 
-第4章「Pre-Marking Direction」では，本研究の中核となる提案手法について述べる．Markingアクションの発火を直接的な目標としてRAの距離計算に統合するアルゴリズムを示し，それがどのように探索を効率化するかを説明する．また，提案手法の適用による性能向上を実験により評価する．
+\aref{chap:pre_marking_direction}「Pre-Marking Direction」では，本研究の中核となる提案手法について述べる．目標アクションの発火に必要な同期イベント（Pre-Markingアクション）を定義し，複雑なグラフ探索を行わずに各コンポーネント単体での距離情報のみを用いることで，同期を考慮した高精度な探索と，計算負荷の低い高速な推論を両立するアルゴリズムを示す．また，提案手法の適用による性能向上を実験により評価する．
 
-第5章「関連研究」では，DCSの効率化やヒューリスティック探索に関する先行研究を概観し，本研究の位置づけを明確にする．
+\aref{chap:related_works}「関連研究」では，DCSの効率化やヒューリスティック探索に関する先行研究を概観し，本研究の位置づけを明確にする．
 
-第6章「結論」では，本論文の成果を総括し，今後の展望について述べる．
+\aref{chap:conclusion}「結論」では，本論文の成果を総括し，今後の展望について述べる．
 
 \chapter{背景技術}
+\label{chap:background}
 
 本章では，本研究の基盤となる離散制御器合成の概要，Directed Controller Synthesis（DCS）の定式化とOn-The-Fly探索アルゴリズム，およびReady Abstraction（RA）に基づくヒューリスティック関数について述べる．
 
@@ -163,7 +174,7 @@ DESは有限状態オートマトン（あるいはLTS）の並列合成によ�
 
 \subsection{ラベル付き遷移系}
 
-本研究では，環境モデル・要求モデルをラベル付き遷移系（Labeled Transition System, LTS）で表現する．
+本研究では，システムを構成する各コンポーネントをラベル付き遷移系（Labeled Transition System, LTS）としてモデル化する．
 なお，本研究ではMarkingアクション（アクションベースの目標）を主に用いるが，既存研究ではMarked状態（状態ベースの目標）を用いることもある．
 この両者を扱えるよう，LTSにはMarked状態集合とMarkingアクション集合の両方を持たせる（必要に応じて片方を空集合または全体集合として扱う）．
 
@@ -249,7 +260,7 @@ DESは有限状態オートマトン（あるいはLTS）の並列合成によ�
 \subsection{制御問題}
 
 既存のDCSでは，タスク完了などを表すMarked状態への到達可能性に基づいてNon-Blocking性を定義することがある．
-本研究のMarkingアクションベース定式化との関係は\ref{subsec:marking_to_marked}節で述べる．
+本研究のMarkingアクションベース定式化との関係は\aref{subsec:marking_to_marked}で述べる．
 また，本研究では，目標を状態ではなくMarkingアクション$A^M$の発火として与える．
 
 \begin{definition}[Directed Controllerの制御問題]
@@ -265,23 +276,23 @@ DESは有限状態オートマトン（あるいはLTS）の並列合成によ�
 \subsection{MarkingアクションからMarked状態への変換}
 \label{subsec:marking_to_marked}
 
-本研究ではMarked状態を用いずMarkingアクション集合$A^M$を用いるが，Marked状態を無限回訪れる問題へ変換する．
-この変換は，以下のようにLTSを1つ追加することで実現される：
+本研究では，目標を特定の状態への到達ではなく，Markingアクション集合 $A^M$ のいずれかの要素が発火することとして定義する．既存のReady Abstraction (RA) の枠組みは状態ベースの目標を想定しているため，アクションベースの目標を状態ベースに変換するためのLTS $E_M$ を導入し，他のコンポーネントの設定を調整する．
+
+合成対象のコンポーネント集合を $\mathcal{E} = \{E_1, \dots, E_n\}$ とし，全コンポーネントのアクション集合の和を $A = \bigcup_{i=1}^n A_{E_i}$ とする．このとき，Markingアクションの発生を状態として保持するMarking判定LTS $E_M = (S_{E_M}, s_{E_M,0}, S^I_{E_M}, S^M_{E_M}, A_{E_M}, A^M_{E_M}, \Delta_{E_M})$ を以下のように定義する：
 
 \begin{itemize}
-  \item 各$E_i$について，Marked状態集合を$S^M_{E_i}\gets S_{E_i}$（全状態Marked）とする
-  \item LTS $E_M$を追加する：
+  \item $S_{E_M} = \{0, 1\}$, $s_{E_M,0} = 0$, $S^I_{E_M} = \emptyset$, $S^M_{E_M} = \{1\}$
+  \item $A_{E_M} = A$ （同期のために全アクションをアルファベットに含める）
+  \item 遷移関係 $\Delta_{E_M}$：
         \begin{itemize}
-          \item 状態集合 $S_{E_M}=\{0,1\}$，初期状態$0$，Marked状態$S^M_{E_M} = \{1\}$
-          \item 任意のMarkingアクション$a \in A^M$に対し $0 \xrightarrow{a} 1,\ 1 \xrightarrow{a} 1$
-          \item 任意の非Markingアクション$a \notin A^M$に対し $0 \xrightarrow{a} 0,\ 1 \xrightarrow{a} 0$
+          \item 任意の $a \in A^M$ に対し，$(0, a, 1) \in \Delta_{E_M}$ および $(1, a, 1) \in \Delta_{E_M}$
+          \item 任意の $a \notin A^M$ に対し，$(0, a, 0) \in \Delta_{E_M}$ および $(1, a, 0) \in \Delta_{E_M}$
         \end{itemize}
 \end{itemize}
 
-このとき，合成対象を$E_1 \parallel E_2 \parallel \cdots \parallel E_n \parallel E_{M}$とみなすと，
-全体がMarkedであるかどうかは$E_M$が状態1にいるかどうかのみに依存する．
-$E_M$は直前の遷移がMarkingアクションであるときのみ状態1に滞在できるため，
-変換後のMarked状態を無限回訪問することは，変換前のMarkingアクションを無限回発火することと等価になる．
+さらに，並列合成 $E_\parallel = E_1 \parallel \dots \parallel E_n \parallel E_M$ において目標達成の判定を $E_M$ に一任するため，他のすべてのコンポーネント $E_i \in \{E_1, \dots, E_n\}$ について，そのMarked状態集合を $S^M_{E_i} = S_{E_i}$ （全状態をMarkedとする）へ再定義する．
+
+この変換により，合成システム $E_\parallel$ がMarked状態にあることは，$E_M$ が状態 $1$ にあることと等価になる．$E_M$ は直前に実行されたアクションが $A^M$ に属する場合のみ状態 $1$ に遷移するため，このMarked状態を無限回訪問することは，元のシステムにおいてMarkingアクションを無限回発火し続けるNon-blockingな振る舞いと完全に一致する．
 
 \subsection{On-The-Fly探索アルゴリズム}
 
@@ -297,7 +308,13 @@ On-The-Fly探索は，状態空間全体を事前に構築することなく，�
         現在の探索フロンティアから，ヒューリスティック関数（例えばRA）を用いて最も有望な未探索の遷移を選択し，探索グラフに追加する（\textsc{ExpandNext}）．これにより，Marked状態への到達可能性が高い経路を優先的に探索する．
   \item \textbf{伝播（Propagation）}:
         ある状態が\textit{Goals}（勝利状態）または\textit{Errors}（敗北状態）であることが確定した場合，その情報を探索グラフの逆方向（親状態）へ伝播させる（\textsc{PropagateGoal}, \textsc{PropagateError}）．
-        具体的には，ある状態から到達可能なすべての遷移先が\textit{Errors}であればその状態も\textit{Errors}となり，逆に制御可能な遷移によって\textit{Goals}へ到達可能であればその状態も\textit{Goals}となる．
+        状態の分類は以下の論理に基づき決定される：
+        \begin{itemize}
+          \item \textbf{Goalsへの伝播}：
+                ある状態から制御可能な遷移によって少なくとも1つの\textit{Goals}状態へ到達可能であるか，あるいはその状態から発生しうる全ての制御不能な遷移の先が\textit{Goals}である場合，その状態は\textit{Goals}となる．
+          \item \textbf{Errorsへの伝播}：
+                ある状態から発生しうる全ての制御可能な遷移の先が\textit{Errors}かつ制御不能な遷移によって少なくとも1つの\textit{Errors}状態へ到達可能である場合，その状態は\textit{Errors}となる．
+        \end{itemize}
   \item \textbf{閉路検出と判定（Loop Detection）}:
         探索中に新たな閉路が形成された場合，その閉路がNon-Blockingを満たすか否かを判定する．
         Markingアクションを含む閉路などの「勝利閉路」が見つかれば，その閉路上の状態は\textit{Goals}となり，逆にMarkingアクションを含まず脱出不可能な閉路は\textit{Errors}となる．
@@ -314,41 +331,41 @@ On-The-Fly探索は，状態空間全体を事前に構築することなく，�
 
     \Function{DirectedControllerSynthesis}{$\bm{E}, H$}
 
-    \State $\textit{ES} \gets$初期状態$\bm{s}_0$のみを持つ部分探索グラフ
-    \State $\textit{Goals} \gets \emptyset, \textit{Errors} \gets \emptyset, \textit{None} \gets \{\bm{s}_0\}$
+    \State $\mathit{ES} \gets$初期状態$\bm{s}_0$のみを持つ部分探索グラフ
+    \State $\mathit{Goals} \gets \emptyset, \mathit{Errors} \gets \emptyset, \mathit{None} \gets \{\bm{s}_0\}$
 
     \Statex
 
     \LComment{探索ループ：初期状態が未分類状態でなくなるまで}
-    \While{$\bm{s}_0 \notin (\textit{Goals} \cup \textit{Errors})$}
-      \State $(\bm{s}, a, \bm{s}') \gets \textsc{ExpandNext}(\textit{ES}, H)$ \Comment{ヒューリスティックによる次遷移の選択}
-      \State $\textit{ES} \gets \textit{ES} \cup \{(\bm{s}, a, \bm{s}')\}$ \Comment{探索グラフの更新}
+    \While{$\bm{s}_0 \notin (\mathit{Goals} \cup \mathit{Errors})$}
+      \State $(\bm{s}, a, \bm{s}') \gets \textsc{ExpandNext}(\mathit{ES}, H)$ \Comment{ヒューリスティックによる次遷移の選択}
+      \State $\mathit{ES} \gets \mathit{ES} \cup \{(\bm{s}, a, \bm{s}')\}$ \Comment{探索グラフの更新}
 
       \Statex
-      \If{$\bm{s}' \in \textit{Errors}$}
-        \State $\textit{Errors} \gets \textit{Errors} \cup \{\bm{s}'\}$
+      \If{$\bm{s}' \in \mathit{Errors}$}
+        \State $\mathit{Errors} \gets \mathit{Errors} \cup \{\bm{s}'\}$
         \State $\textsc{PropagateError}(\bm{s}')$ \Comment{敗北状態の伝播}
-      \ElsIf{$\bm{s}' \in \textit{Goals}$}
-        \State $\textit{Goals} \gets \textit{Goals} \cup \{\bm{s}'\}$
+      \ElsIf{$\bm{s}' \in \mathit{Goals}$}
+        \State $\mathit{Goals} \gets \mathit{Goals} \cup \{\bm{s}'\}$
         \State $\textsc{PropagateGoal}(\bm{s}')$ \Comment{勝利状態の伝播}
       \ElsIf{$\bm{s}'$ が新しいループを形成する}
-        \State $\textit{Loop} \gets \textsc{GetLoop}(\bm{s}, \bm{s}')$
-        \If{$\textit{Loop}$ が勝利条件を満たす}
-          \State $\textit{newGoals} \gets \textsc{FindNewGoals}(\textit{Loop})$
-          \State $\textit{Goals} \gets \textit{Goals} \cup \textit{newGoals}$
-          \State $\textsc{PropagateGoal}(\textit{newGoals})$
+        \State $\mathit{Loop} \gets \textsc{GetLoop}(\bm{s}, \bm{s}')$
+        \If{$\mathit{Loop}$ が勝利条件を満たす}
+          \State $\mathit{newGoals} \gets \textsc{FindNewGoals}(\mathit{Loop})$
+          \State $\mathit{Goals} \gets \mathit{Goals} \cup \mathit{newGoals}$
+          \State $\textsc{PropagateGoal}(\mathit{newGoals})$
         \Else
-          \State $\textit{newErrors} \gets \textsc{FindNewErrors}(\textit{Loop})$
-          \State $\textit{Errors} \gets \textit{Errors} \cup \textit{newErrors}$
-          \State $\textsc{PropagateError}(\textit{newErrors})$
+          \State $\mathit{newErrors} \gets \textsc{FindNewErrors}(\mathit{Loop})$
+          \State $\mathit{Errors} \gets \mathit{Errors} \cup \mathit{newErrors}$
+          \State $\textsc{PropagateError}(\mathit{newErrors})$
         \EndIf
       \EndIf
     \EndWhile
 
     \Statex
 
-    \If{$s_0 \in \textit{Goals}$}
-      \State $C \gets \textsc{ExtractController}(\textit{ES}, \textit{Goals})$
+    \If{$s_0 \in \mathit{Goals}$}
+      \State $C \gets \textsc{ExtractController}(\mathit{ES}, \mathit{Goals})$
       \Return $C$
     \Else
       \Return 合成不可能
@@ -369,7 +386,7 @@ RAの基本的な着想は，合成状態 $\bm{s} = (s_{E_1}, s_{E_2}, \ldots, s
 
 \subsection{候補アクションの評価}
 
-アルゴリズム\ref{alg:ready_abstraction}は，現在の合成状態 $\bm{s}$ において候補アクション $\hat{a}$ を選ぶことがどれだけ目標に近いかを評価するためのヒューリスティック関数である．
+\aref{alg:ready_abstraction}は，現在の合成状態 $\bm{s}$ において候補アクション $\hat{a}$ を選ぶことがどれだけ目標に近いかを評価するためのヒューリスティック関数である．
 評価は各コンポーネント $E_i$ ごとに $(\mathrm{rank}, d)$ の形で返され，rank は距離推定に用いる目標集合の優先度を表す．
 
 本章で示すRAの記述では，探索中にすでに到達したMarked状態集合 $\bm{S}^M$ を基準にした距離（Rank 0）を優先する．
@@ -377,7 +394,7 @@ RAの基本的な着想は，合成状態 $\bm{s} = (s_{E_1}, s_{E_2}, \ldots, s
 Rank 0での推定が不可能な場合に限り，任意のMarked状態への距離（Rank 1）を用いる．
 どちらも不可能と推定された場合は $(2,\infty)$ を返す．
 
-\begin{algorithm}[H]
+\begin{algorithm}
   \caption{Ready Abstractionによるヒューリスティック関数}
   \label{alg:ready_abstraction}
   \begin{algorithmic}[1]
@@ -399,18 +416,18 @@ Rank 0での推定が不可能な場合に限り，任意のMarked状態への�
     \Function{ReadyAbstractionHeuristic}{$\bm{E}, \bm{S}^M, \bm{s}, \hat{a}$}
 
     \For{$i = 1, 2, \ldots, n$}
-      \State $\textit{minSteps} \gets \infty$
+      \State $\mathit{minSteps} \gets \infty$
 
       \Statex
 
       \LComment{Rank 0: 探索到達済みのMarked状態への到達可能性確認}
       \ForAll{$(s^*_{E_1}, s^*_{E_2}, \ldots, s^*_{E_n}) \in \bm{S}^M$}
-        \State $\textit{steps} \gets \textsc{EstimateDist}(\bm{s}, \hat{a}, s^*_{E_i})$
-        \If{$\textit{steps} < \textit{minSteps}$}
-          $\textit{minSteps} \gets \textit{steps}$
+        \State $\mathit{steps} \gets \textsc{EstimateDist}(\bm{s}, \hat{a}, s^*_{E_i})$
+        \If{$\mathit{steps} < \mathit{minSteps}$}
+          $\mathit{minSteps} \gets \mathit{steps}$
         \EndIf
       \EndFor
-      \If{$\textit{minSteps} \ne \infty$} \Comment{いずれかの探索到達済みのMarked状態に到達可能な場合}
+      \If{$\mathit{minSteps} \ne \infty$} \Comment{いずれかの探索到達済みのMarked状態に到達可能な場合}
         \State $\bm{d}_{E_i} \gets (0, minSteps)$
         \Continue
       \EndIf
@@ -419,13 +436,13 @@ Rank 0での推定が不可能な場合に限り，任意のMarked状態への�
 
       \LComment{Rank 1: 任意のMarked状態への到達可能性確認}
       \ForAll{$s^*_{E_i} \in S^M_{E_i}$}
-        \State $\textit{steps} \gets \textsc{EstimateDist}(\bm{s}, \hat{a}, s^*_{E_i})$
-        \If{$\textit{steps} < \textit{minSteps}$}
-          $\textit{minSteps} \gets \textit{steps}$
+        \State $\mathit{steps} \gets \textsc{EstimateDist}(\bm{s}, \hat{a}, s^*_{E_i})$
+        \If{$\mathit{steps} < \mathit{minSteps}$}
+          $\mathit{minSteps} \gets \mathit{steps}$
         \EndIf
       \EndFor
 
-      \If{$\textit{minSteps} \ne \infty$} \Comment{いずれかのMarked状態に到達可能な場合}
+      \If{$\mathit{minSteps} \ne \infty$} \Comment{いずれかのMarked状態に到達可能な場合}
         \State $\bm{d}_{E_i} \gets (1, minSteps)$
       \Else
         \State $\bm{d}_{E_i} \gets (2, \infty)$
@@ -441,13 +458,18 @@ Rank 0での推定が不可能な場合に限り，任意のMarked状態への�
   \end{algorithmic}
 \end{algorithm}
 
-アルゴリズム\ref{alg:ready_abstraction}の戻り値は，各コンポーネントに関する距離推定の組であるため，実際の探索ではこの組を辞書式に比較して候補アクションを順位付けするのが自然である．
-例えば，まずrankの小さいものを優先し，rankが同じ場合には距離$d$が小さいものを優先する，といった運用ができる．
-このように組の比較として扱うことで，並列合成の構造を保ったまま候補を評価できる．
+\aref{alg:ready_abstraction}の戻り値は各コンポーネントの距離推定の組であるが，実際の探索（\textsc{ExpandNext}）において候補アクション $\hat{a}$ を選択する際は，以下の優先順位に従って順位付けを行う：
+
+\begin{enumerate}
+  \item \textbf{制御不能アクションの優先}：$\hat{a} \in A^U$ であるアクションを，全ての制御可能アクション $\hat{a} \in A^C$ よりも優先する．
+  \item \textbf{辞書式順序による比較}：アクションの属性が同じ（共に制御可能，あるいは共に制御不能）である場合，\aref{alg:ready_abstraction}が返す距離の組 $\bm{d}$ を辞書式に比較し，値が小さい（より目標に近いと推定される）ものを優先する．
+\end{enumerate}
+
+制御不能アクションを最優先するのは，環境側で発生しうる全ての振る舞いを早期に探索し，反例（違反状態やデッドロック）を迅速に検出するためである．
 
 \subsection{距離推定の中核}
 
-アルゴリズム\ref{alg:estimate_dist}は，アルゴリズム\ref{alg:ready_abstraction}が内部で呼び出す距離推定関数である．
+\aref{alg:estimate_dist}は，\aref{alg:ready_abstraction}が内部で呼び出す距離推定関数である．
 入力は現在の合成状態 $\bm{s}$，次に実行する候補アクション $\hat{a}$，距離の対象となるコンポーネント状態 $s^*_{E_i}$ であり，出力は推定距離 $d$ である．
 
 推定は大きく二段階で行われる．
@@ -488,12 +510,12 @@ Rank 0での推定が不可能な場合に限り，任意のMarked状態への�
     \For{$j = 1, 2, \ldots, n$}
       \State $A^R_{E_j} \gets \{a \mid \exists s', (s_{E_j}, a, s') \in \Delta_{E_j}, s' \neq s_{E_j}\}$
     \EndFor
-    \State $A^R \gets \bigcup_{j=1}^{n} A^R_{E_j}$ \Comment{全LTSで，同期を考慮しないと発火可能（Ready）なアクションの集合}
+    \State $A^R \gets \bigcup_{j=1}^{n} A^R_{E_j}$ \Comment{Readyアクションの集合}
 
     \Statex
 
     \LComment{Gapを加味した最短経路探索}
-    \State $d \gets \min_{a \in A^R}\{\textsc{CalculateGap}(\hat{a}, a) + \textsc{EstimateDist}(\bm{s}, a, s^*_{E_i})\}$
+    \State $d \gets \min_{a \in A^R}\{\textsc{CalculateGap}(\bm{s}, \hat{a}, a) + \textsc{EstimateDist}(\bm{s}, a, s^*_{E_i})\}$
     \LComment{この再帰的な最小値問題は，実装上はダイクストラ法により効率的に解かれる}
 
     \If{$d = \infty$} \Comment{Readyアクションを用いて距離を推定できない場合}
@@ -506,8 +528,12 @@ Rank 0での推定が不可能な場合に限り，任意のMarked状態への�
   \end{algorithmic}
 \end{algorithm}
 
-ここで用いられる \textsc{CalculateGap}$(\hat{a}, a)$ は，アクション間の切り替えのしやすさを表すコストであり，既存研究における定義 $G_E^e(\hat{a}, a)$ に従い，あるコンポーネント内でアクション $\hat{a}$ から $a$ へ至る最短パスの長さ（から1を引いた値）として計算される．
+ここで用いられる \textsc{CalculateGap}$(\hat{a}, a)$ は，アクション間の切り替えのしやすさを表すコストであり，既存研究における定義に従い，あるコンポーネント内でアクション $\hat{a}$ を経て $a$ へ至る最短パスの長さ（から1を引いた値）として計算される．
 
+以上により，RAは局所情報から，次にどのアクションを展開するのが有望かを推定する枠組みを提供する．
+On-The-Fly探索側では，これらの推定値を用いて展開順序を制御することで，合成状態空間の全探索を避けつつ，目的を満たす制御器の発見を狙う．
+
+\begin{comment}
 \subsection{Markingアクションまでの距離推定}
 
 RAは，Marked状態への到達距離を推定する枠組みとして提案されている．
@@ -515,7 +541,7 @@ RAは，Marked状態への到達距離を推定する枠組みとして提案さ
 そこで本節では，Markingアクション集合 $A^M$ に対する距離推定手続きとして\textsc{EstimateDistToMarking}を示す．
 
 \textsc{EstimateDistToMarking}は，候補アクション$\hat{a}$がMarkingアクションであれば距離1を返し，そうでなければ，合成状態$\bm{s}$から（同期を無視すれば）状態を変化させ得るアクション集合$A^R$を介して，Gapとその先での推定距離の和の最小値を再帰的に求める．
-構造はアルゴリズム\ref{alg:estimate_dist}（\textsc{EstimateDist}）と同型であり，終端条件がMarked状態ではなくMarkingアクションになっている点が相違である．
+構造は\aref{alg:estimate_dist}（\textsc{EstimateDist}）と同型であり，終端条件がMarked状態ではなくMarkingアクションになっている点が相違である．
 
 なお，\textsc{EstimateDistToMarking}は，探索到達済みMarked状態集合$\bm{S}^M$を基準とするRank 0の推定が利用できない状況，特に$\bm{S}^M=\emptyset$の場合に用いることを想定している．
 
@@ -539,7 +565,7 @@ RAは，Marked状態への到達距離を推定する枠組みとして提案さ
     \For{$j = 1, 2, \ldots, n$}
       \State $A^R_{E_j} \gets \{a \mid \exists s', (s_{E_j}, a, s') \in \Delta_{E_j}, s' \neq s_{E_j}\}$
     \EndFor
-    \State $A^R \gets \bigcup_{j=1}^{n} A^R_{E_j}$ \Comment{全LTSで，同期を考慮しないと発火可能（Ready）なアクションの集合}
+    \State $A^R \gets \bigcup_{j=1}^{n} A^R_{E_j}$ \Comment{Readyアクションの集合}
 
     \Return $\min_{a \in A^R \cup A^M}\{\textsc{CalculateGap}(\hat{a}, a) + \textsc{EstimateDistToMarking}(\bm{s}, a)\}$
 
@@ -549,18 +575,25 @@ RAは，Marked状態への到達距離を推定する枠組みとして提案さ
 
 以上により，RAは局所情報から，次にどのアクションを展開するのが有望かを推定する枠組みを提供する．
 On-The-Fly探索側では，これらの推定値を用いて展開順序を制御することで，合成状態空間の全探索を避けつつ，目的を満たす制御器の発見を狙う．
+\end{comment}
 
 \chapter{Ready Abstractionの課題}
+\label{chap:ready_abstraction_limitations}
 
 \chapter{Pre-Marking Direction}
+\label{chap:pre_marking_direction}
 
 \chapter{関連研究}
+\label{chap:related_works}
 
 \chapter{結論}
+\label{chap:conclusion}
 
 \section{本論文のまとめ}
 
 \section{将来研究}
+
+\appendix
 
 \backmatter
 
