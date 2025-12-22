@@ -38,6 +38,7 @@
 \usepackage{comment}
 \usepackage{mathtools}
 \usepackage{thmtools}
+\usepackage{tikz}
 \usepackage{prettyref}
 
 \declaretheoremstyle[
@@ -47,6 +48,8 @@
 \declaretheorem[name=定義,style=jstyle]{definition}
 
 \newcommand{\descitem}[1]{\item[#1]\mbox{}\\}
+
+\usetikzlibrary{arrows.meta,automata,positioning}
 
 \newrefformat{chap}{第\ref*{#1}章}
 \newrefformat{sec}{第\ref*{#1}節}
@@ -579,6 +582,235 @@ On-The-Fly探索側では，これらの推定値を用いて展開順序を制�
 
 \chapter{Ready Abstractionの課題}
 \label{chap:ready_abstraction_limitations}
+
+前章で述べたように，Ready Abstraction（RA）は局所的に発火可能なアクション（Readyアクション）間の関係性を利用して，目標までの距離を推定するヒューリスティック手法である．
+RAは，コンポーネント間の結合が疎であり，各コンポーネントが比較的自律的に目標へ遷移できるシステムにおいては強力なガイドとなる．
+
+しかし，本研究が対象とするような，Markingアクションの発火に複数のコンポーネントによる厳密な同期が必要となるシステムにおいては，RAの推定精度と計算効率の両面で深刻な課題が生じる．
+本章では，RAが抱える構造的な限界について，同期構造の無視による探索効率の低下と，Readyアクション探索に伴う計算コストの増大という2つの観点から分析する．
+
+\section{同期構造に起因する近視眼的な探索}
+
+RAの最大の特徴は，現在の合成状態において直ちに発火可能なアクション（Readyアクション）のみをノードとするグラフ上で距離計算を行う点にある．
+この特性は，将来的に発生する同期イベントを適切に評価できないという欠点につながる．
+
+\subsection{同期待ち時間の無視}
+
+Markingアクション $a_m$ が同期アクションである場合，その発火には関与する全てのコンポーネントが $a_m$ を発火可能な状態に到達していなければならない．
+しかし，あるコンポーネント $E_i$ が既に $a_m$ の直前状態に到達していても，他のコンポーネント $E_j$ がまだ準備できていなければ，システム全体として $a_m$ は実行できない．
+
+RAの距離推定アルゴリズム（\aref{alg:estimate_dist}）は，現在のReadyアクション集合 $A^R$ を起点として，目標までの最短パスを探索する．
+このとき，同期が必要なアクションへのパスは，パートナーの到着を待つための遷移（同期待ち）を含める必要があるため，RAのグラフ上では遠い，あるいは到達困難と判定されやすい．
+対照的に，同期を必要とせず単独で進行でき，かつ局所的に目標に近い場所へ遷移できるアクションが存在する場合，RAはその見かけ上の近さを優先して評価する．
+
+RAはこの他者の同期待ちという大域的な制約を軽視し，各コンポーネントが局所的な最短経路を選択し続けるような近視眼的な評価を下すため，結果として合流不可能な経路や，効率の悪い脇道状態を優先的に探索する結果となる．
+
+\subsection{具体的な不適合例：金属加工システム}
+
+RAが不適切な誘導を行う具体的なシナリオとして，\aref{fig:metal_processing_model}に示す金属加工システムのモデルを用いて説明する．
+
+本システムは，加工プロセスを表す環境モデル（$E_\mathit{env}$）と，工程管理を行う要求モデル（$E_\mathit{req}$）の2つのコンポーネントから構成される．
+目標は「出荷」アクションの発火（Markingアクション）である．
+なお，説明を簡単にするため，本モデルに含まれる全てのアクションは制御可能（Controllable）であるとする．
+
+環境モデルは，初期状態から「金属準備」を経て待機状態（状態1）へ遷移する．この状態1を起点として，2つの経路が存在する．
+1つ目は「溶解」，「成形」，「冷却」を行い，再び待機状態に戻る加工サイクルである．
+このサイクルは0回以上実行可能である．
+2つ目は「研磨」や「皮膜」を施し，最後に「出荷」して初期状態に戻る仕上げ・出荷工程である．
+
+要求モデルは，製品の品質担保のために「成形」が1度以上発火されることを強制する．
+具体的には，初期状態（成形未実施，状態0）において「成形」を経ずに「出荷」アクションが発火された場合，未加工品の出荷とみなされ，違反状態$-1$（図下段の赤色ノード）へ遷移する．
+「成形」が発火されると状態1（成形済み）へ遷移し，以降は「出荷」を行っても初期状態に戻るだけであり，違反にはならない．
+
+\begin{figure}[H]
+  \centering
+  \begin{tikzpicture}[shorten >=1pt, node distance=2.5cm, on grid, auto, >={Stealth}]
+
+    % --- 環境モデル (Environment) ---
+    \begin{scope}[yshift=0cm]
+      \node[anchor=west] at (-3, 1) {\textbf{環境モデル} $E_\mathit{env}$};
+
+      \node[state, initial, initial text=] (e0) {$0$};
+      \node[state] (e1) [right=of e0] {$1$};
+      \node[state] (e2) [right=of e1] {$2$};
+      \node[state] (e3) [right=of e2] {$3$};
+      \node[state] (e4) [below=of e1] {$4$};
+
+      \path[->]
+      (e0) edge node {\footnotesize 金属準備} (e1)
+      (e1) edge node {\footnotesize 溶解} (e2)
+      (e2) edge node {\footnotesize 成形} (e3)
+      (e3) edge [bend left=45] node {\footnotesize 冷却} (e1)
+      (e1) edge node [swap] {\footnotesize 研磨，皮膜} (e4)
+      (e4) edge [bend left=45, orange] node {\footnotesize 出荷} (e0);
+    \end{scope}
+
+    % --- 要求モデル (Requirement) ---
+    \begin{scope}[yshift=-4.5cm]
+      \node[anchor=west] at (-3, 1) {\textbf{要求モデル} $E_\mathit{req}$};
+
+      \node[state, draw=red, fill=red!15] (r-1) {$-1$};
+      \node[state, initial, initial text=] (r0) [right=of r-1] {$0$};
+      \node[state] (r1) [right=of r0] {$1$};
+
+      \path[->]
+      (r0) edge node {\footnotesize 成形} (r1)
+      (r1) edge [loop right] node {\footnotesize 成形} ()
+      (r0) edge [bend left=45, orange] node {\footnotesize 出荷} (r-1)
+      (r1) edge [bend left=45, orange] node {\footnotesize 出荷} (r0);
+    \end{scope}
+
+  \end{tikzpicture}
+  \caption{金属加工システムの環境モデルと要求モデル}
+  \label{fig:metal_processing_model}
+\end{figure}
+
+\subsubsection{Ready Abstraction適用のためのMarked状態への変換}
+
+RAは本来，Marked状態への到達を目的とする探索手法である．
+一方，本問題の目標は「出荷」アクションの発火であるため，\aref{subsec:marking_to_marked}で述べた変換手法を適用し，アクションベースの目標を状態ベースの目標に置き換える必要がある．
+
+\aref{fig:metal_processing_model_marked}は，変換後のシステム構成を示している．
+ここでは，新たなコンポーネントとしてMarking判定モデル $E_M$ を導入している．
+$E_M$は，「出荷」アクションが発火された直後のみMarked状態（状態1）に遷移し，それ以外の場合は非Marked状態（状態0）に留まる機能を持つ．
+いわば，アクションの発火イベントを状態遷移として表現するためのモデルである．
+
+この変換に伴い，既存の環境モデル $E_\mathit{env}$ および要求モデル $E_\mathit{req}$ においては，違反状態を除くすべての状態をMarked状態（図中の二重丸）として再定義する．
+これにより，システム全体の並列合成状態がMarkedとなる（全てのコンポーネントが同時にMarked状態にある）ための条件は，実質的に$E_M$が状態1になること，すなわち直前に出荷アクションが発火したことと等価になる．
+
+\begin{figure}[H]
+  \centering
+  \begin{tikzpicture}[shorten >=1pt, node distance=2.5cm, on grid, auto, >={Stealth}]
+
+    % --- 環境モデル (Environment) ---
+    \begin{scope}[yshift=0cm]
+      \node[anchor=west] at (-3, 1) {\textbf{環境モデル} $E_\mathit{env}$};
+
+      \node[state, initial, initial text=, accepting] (e0) {$0$};
+      \node[state, accepting] (e1) [right=of e0] {$1$};
+      \node[state, accepting] (e2) [right=of e1] {$2$};
+      \node[state, accepting] (e3) [right=of e2] {$3$};
+      \node[state, accepting] (e4) [below=of e1] {$4$};
+
+      \path[->]
+      (e0) edge node {\footnotesize 金属準備} (e1)
+      (e1) edge node {\footnotesize 溶解} (e2)
+      (e2) edge node {\footnotesize 成形} (e3)
+      (e3) edge [bend left=45] node {\footnotesize 冷却} (e1)
+      (e1) edge node [swap] {\footnotesize 研磨，皮膜} (e4)
+      (e4) edge [bend left=45] node {\footnotesize 出荷} (e0);
+    \end{scope}
+
+    % --- 要求モデル (Requirement) ---
+    \begin{scope}[yshift=-4.5cm]
+      \node[anchor=west] at (-3, 1) {\textbf{要求モデル} $E_\mathit{req}$};
+
+      \node[state, draw=red, fill=red!15] (r-1) {$-1$};
+      \node[state, initial, initial text=, accepting] (r0) [right=of r-1] {$0$};
+      \node[state, accepting] (r1) [right=of r0] {$1$};
+
+      \path[->]
+      (r0) edge node {\footnotesize 成形} (r1)
+      (r1) edge [loop right] node {\footnotesize 成形} ()
+      (r0) edge [bend left=45] node {\footnotesize 出荷} (r-1)
+      (r1) edge [bend left=45] node {\footnotesize 出荷} (r0);
+    \end{scope}
+
+    \begin{scope}[yshift=-7.5cm]
+      \node[anchor=west] at (-3, 1.2) {\textbf{Marking判定モデル} $E_M$};
+
+      \node[state, initial, initial text=] (m0) {$0$};
+      \node[state, accepting] (m1) [right=3.5cm of m0] {$1$};
+
+      \path[->]
+      (m0) edge [loop below] node {\footnotesize $A_{E_\mathit{env}} \setminus \{\text{出荷}\}$} ()
+      (m1) edge [bend left=20] node {\footnotesize $A_{E_\mathit{env}} \setminus \{\text{出荷}\}$} (m0)
+      (m0) edge [bend left=20] node {\footnotesize 出荷} (m1)
+      (m1) edge [loop below] node {\footnotesize 出荷} ();
+    \end{scope}
+
+  \end{tikzpicture}
+  \caption{アクション目標を状態目標へ変換した金属加工システム}
+  \label{fig:metal_processing_model_marked}
+\end{figure}
+
+\subsubsection{RAによる探索と失敗のプロセス}
+
+前目で述べた変換後の金属加工システム（\aref{fig:metal_processing_model_marked}）に対し，RAを用いたOn-The-Fly探索を適用した場合の具体的な挙動を示す．
+本モデルでは，$E_\mathit{env}$ と $E_\mathit{req}$ の全状態がMarkedと設定されているため，探索の主目的は Mark判定モデル $E_M$ を状態1（Marked）に遷移させること，すなわち「出荷」アクションを発火させることになる．
+
+RAを用いた場合でも，最終的には適切な制御器が合成されるが，その過程で生じる非効率な探索挙動について以下に段階的に示す．
+
+\begin{description}
+  \descitem{Step 1: 初期状態からの遷移}
+  初期状態 $\bm{s}_0 = (0, 0, 0)$ （順に $E_\mathit{env}, E_\mathit{req}, E_M$ の状態）において，発火可能なアクションは金属準備のみである．
+  システムはこれを選択し，状態 $\bm{s}_1 = (1, 0, 0)$ へ遷移する．
+  このとき，$E_\mathit{env}$ は状態1（分岐点）に進むが，$E_\mathit{req}$ と $E_M$ は金属準備に関与しないため状態0に留まる．
+
+  \descitem{Step 2: RAによるヒューリスティック評価と誤った選択}
+  状態 $\bm{s}_1$ において，RAは次に選択すべきアクションを決定する．
+  この時点で局所的に発火可能なアクション（Readyアクション）の集合は，$A^R = \{\text{溶解}, \text{研磨}, \text{皮膜}, \text{成形}, \text{出荷}\}$ である．
+  RAはこれらの候補について，目標（Marked状態）までの距離を推定する．
+
+  \begin{description}
+    \descitem{$E_\mathit{env}$ および $E_\mathit{req}$ の評価（差がつかない）}
+    設定により全状態がMarkedであるため，現在の状態が既に目標状態であるとみなされる．したがって，これら2つのコンポーネントにおける距離推定値は1となり，アクション選択の差別化要因とならない．
+    \descitem{$E_M$ およびReadyアクションを用いた評価（差が生じる）}
+    $E_M$ が状態1（Marked）へ遷移するためには，「出荷」アクションの発火が不可欠である．
+    RAは，現在のReadyアクション候補から「出荷」を発火可能にするまでの近さ（Gap）を評価する．
+    \begin{description}
+      \item[研磨・皮膜] $E_\mathit{env}$ において，これらのアクションを実行すると状態4へ遷移し，直ちに「出荷」が発火可能となる．したがって，「出荷」へのGapは共に1と評価される．
+      \item[溶解] $E_\mathit{env}$ において，これを実行すると状態2へ遷移するが，その後「成形」「冷却」を経なければ「出荷」が可能な状態に戻らない．したがって，「出荷」へのGapは3と評価される．
+    \end{description}
+  \end{description}
+
+  この結果，RAは「出荷」への到達コストが低い「研磨」および「皮膜」の2つを，同等に有望なアクションであると判断する．これらは「溶解」よりも優先度が高いため，探索アルゴリズムはまずこの2つのアクションのいずれか（例えば「研磨」）を選択し，状態 $\bm{s}_2 = (4, 0, 0)$ への遷移を行う．
+
+  \descitem{Step 3: 経路の行き詰まりと繰り返される不要な探索}
+  遷移後の状態 $\bm{s}_2 = (4, 0, 0)$ において，環境モデル上では出荷が可能である．
+  しかし，要求モデル $E_\mathit{req}$ は依然として状態0（成形未実施）にある．
+  この状態で出荷を発火すると，$E_\mathit{req}$ は違反状態（$-1$）へ遷移してしまうため，DCSの安全性制約によりこの遷移は禁止される．
+  他に有効なアクションも存在しないため，この経路は探索の行き詰まりとなる．
+
+  この結果，探索アルゴリズムはこの経路を破棄し，分岐点である状態 $\bm{s}_1$ までバックトラックを行う．
+  しかし，RAのヒューリスティック評価では，残る候補である「皮膜」も「溶解」よりコストが低いと判定されている．
+  そのため，アルゴリズムは「溶解」を選ぶ前に，もう一方の候補である「皮膜」の探索へ移行する．
+  「皮膜」ルートも同様に同期待機ができず行き詰まりとなるため，再びバックトラックが発生する．
+
+  このように，RAの誘導により2つの不要な経路を探索し尽くした後に，ようやく次善の候補であった「溶解」ルートの探索が開始される．
+\end{description}
+
+以上のプロセスにより，RAを用いた探索では，同期（$E_\mathit{req}$ の状態進行）の必要性を見抜けずに，局所的に目標アクション「出荷」へ近づきやすい経路を優先して探索する．
+大規模なシステムにおいては，このような不要な探索とバックトラックが頻発し，計算リソースを著しく浪費する原因となる．
+
+\section{Readyアクション探索による計算コストの増大}
+
+RAのもう一つの課題は，ヒューリスティック値の計算自体のオーバーヘッドである．
+前章の\aref{alg:estimate_dist}（\textsc{EstimateDist}）に示した通り，RAは距離を算出するために以下の処理を行う．
+
+$$
+  d \gets \min_{a \in A^R}\{\textsc{CalculateGap}(\bm{s}, \hat{a}, a) + \textsc{EstimateDist}(\bm{s}, a, s^*_{E_i})\}
+$$
+
+この式は，現在の合成状態における全てのReadyアクション $A^R$ に対して，遷移コスト（Gap）と再帰的な距離推定を行い，その最小値を求めることを意味している．
+これは実質的に，探索の1ステップごとに，Readyアクションをノードとするグラフ上でダイクストラ法に近い最短経路探索を行っているに等しい．
+
+システム規模が大きくなり，並列動作するコンポーネント数が増加すると，Readyアクション集合 $A^R$ のサイズは増大する．
+DCSのOn-The-Fly探索では，数十万の状態を探索することが珍しくない．その全ての遷移において，この重い計算処理が走ることは，合成時間全体に対して無視できないペナルティとなる．
+
+特に，前節で述べたように同期待ちが発生している状況では，有効なパスが見つからずに $A^R$ 全体を探索し尽くす最悪ケースの計算が発生しやすくなる．
+すなわち，RAは探索中に迷いやすいだけでなく，その計算処理自体も重いという二重の課題を抱えていると言える．
+
+\section{本章のまとめ}
+
+本章では，Markingアクションを目標とする離散制御器合成において，従来のReady Abstractionが抱える課題を分析した．
+
+第一の課題は同期の無視である．RAは局所的な最短経路を優先するため，同期のための準備動作よりも，単独で進行可能な近道を過剰評価する．これにより，パートナーの到着を待てずに脇道へ逸れる探索（不要な探索）が発生する．
+
+第二の課題は計算コストである．RAは距離推定のためにReadyアクショングラフ上の探索を都度行うため，1ステップあたりの計算負荷が高く，大規模なシステムにおいて合成時間のボトルネックとなる．
+
+これらの課題は，RAが動的なReady情報とその探索に依存しすぎていることに起因する．
+次章では，これらの問題を解決するために，静的な構造情報である同期アクションまでの局所距離を活用し，計算コストを抑えつつ同期を強力に指向する新たな手法「Pre-Marking Direction」を提案する．
 
 \chapter{Pre-Marking Direction}
 \label{chap:pre_marking_direction}
