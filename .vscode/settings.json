@@ -1,0 +1,5 @@
+{
+  "gitlens.codeLens.recentChange.enabled": false,
+  "gitlens.codeLens.authors.enabled": false,
+  "gitlens.currentLine.enabled": false
+}
