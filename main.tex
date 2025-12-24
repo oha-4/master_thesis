@@ -64,7 +64,7 @@
 
 \makeatletter
 
-\renewcommand{\fps@algorithm}{H}
+\renewcommand{\fps@algorithm}{htbp}
 \renewcommand{\ALG@name}{アルゴリズム}
 \renewcommand{\algorithmicrequire}{\textbf{入力：}}
 \renewcommand{\algorithmicensure}{\textbf{出力：}}
@@ -390,7 +390,7 @@ RAの基本的な着想は，合成状態 $\bm{s} = (s_{E_1}, s_{E_2}, \ldots, s
 
 \subsection{展開対象のアクションの評価}
 
-\aref{alg:ready_abstraction}は，現在の合成状態 $\bm{s}$ において展開対象のアクション $\hat{a}$ を選ぶことがどれだけ目標に近いかを評価するためのヒューリスティック関数である．
+\aref{alg:ra_heuristic}は，現在の合成状態 $\bm{s}$ において展開対象のアクション $\hat{a}$ を選ぶことがどれだけ目標に近いかを評価するためのヒューリスティック関数である．
 評価は各コンポーネント $E_i$ ごとに $(\mathrm{rank}, d)$ の形で返され，rank は距離推定に用いる目標集合の優先度を表す．
 
 本章で示すRAの記述では，探索中にすでに到達したMarked状態集合 $\bm{S}^M$ を基準にした距離（Rank 0）を優先する．
@@ -400,7 +400,7 @@ Rank 0での推定が不可能な場合に限り，任意のMarked状態への�
 
 \begin{algorithm}
   \caption{Ready Abstractionによるヒューリスティック関数}
-  \label{alg:ready_abstraction}
+  \label{alg:ra_heuristic}
   \begin{algorithmic}[1]
     \Require{%
       全てのLTSの組 $\bm{E} = (E_1, E_2, \ldots, E_n)$， \\
@@ -462,24 +462,34 @@ Rank 0での推定が不可能な場合に限り，任意のMarked状態への�
   \end{algorithmic}
 \end{algorithm}
 
-\aref{alg:ready_abstraction}の戻り値は各コンポーネントの距離推定の組であるが，実際の探索（\textsc{ExpandNext}）においてアクション $\hat{a}$ を選択する際は，以下の優先順位に従って順位付けを行う：
+\aref{alg:ra_heuristic}の戻り値は各コンポーネントの距離推定の組であるが，実際の探索（\textsc{ExpandNext}）においてアクション $\hat{a}$ を選択する際は，以下の優先順位に従って順位付けを行う：
 
 \begin{enumerate}
   \item \textbf{制御不能アクションの優先}：$\hat{a} \in A^U$ であるアクションを，全ての制御可能アクション $\hat{a} \in A^C$ よりも優先する．
-  \item \textbf{辞書式順序による比較}：アクションの属性が同じ（共に制御可能，あるいは共に制御不能）である場合，\aref{alg:ready_abstraction}が返す距離の組 $\bm{d}$ を辞書式に比較し，値が小さい（より目標に近いと推定される）ものを優先する．
+  \item \textbf{辞書式順序による比較}：アクションの属性が同じ（共に制御可能，あるいは共に制御不能）である場合，\aref{alg:ra_heuristic}が返す距離の組 $\bm{d}$ を辞書式に比較し，値が小さい（より目標に近いと推定される）ものを優先する．
 \end{enumerate}
 
 制御不能アクションを最優先するのは，環境側で発生しうる全ての振る舞いを早期に探索し，反例（違反状態やデッドロック）を迅速に検出するためである．
 
 \subsection{距離推定の中核}
 
-\aref{alg:estimate_dist}は，\aref{alg:ready_abstraction}が内部で呼び出す距離推定関数である．
-入力は現在の合成状態 $\bm{s}$，次に実行するアクション $\hat{a}$，距離の対象となるコンポーネント状態 $s^*_{E_i}$ であり，出力は推定距離 $d$ である．
+Ready Abstractionにおける距離推定の手続きを\aref{alg:estimate_dist}に示す．
+この関数 $\textsc{EstimateDist}$ は，現在の合成状態 $\bm{s}$，評価対象のアクション $\hat{a}$，および目標状態 $s^*_{E_i}$ を入力とし，推定距離 $d$ を算出する．
 
-推定は大きく二段階で行われる．
-まず，$\hat{a}$ がコンポーネント $E_i$ に存在するなら，$\hat{a}$ を局所的に一回発火した後の状態 $s'_{E_i}$ を確認し，そこからの局所最短距離 $\textsc{CalculateDist}(s'_{E_i}, s^*_{E_i})$ を用いて直接効果を見積もる．
-これで判断できない場合には，現在の合成状態から（同期を無視すれば）状態を変化させ得るアクション集合 $A^R$ を列挙し，切り替えコスト（Gap）とその先の推定距離の和の最小値として距離を与える．
-この再帰的最小化は，実装上はRAグラフ上の最短路として扱うことで効率化できる．
+本アルゴリズムでは，推定のために以下の2つの補助関数を利用する．
+
+\begin{description}
+  \descitem{\textnormal{$\textsc{CalculateDist}(s, a)$}}
+  LTS単体において，状態 $s$ からアクション $a$ へ到達するための最短ステップ数．
+  この値は探索中頻繁に参照されるため，効率化の観点から，探索開始前にすべての状態とアクションの組について幅優先探索により算出されている．
+
+  \descitem{\textnormal{$\textsc{CalculateGap}(\bm{s}, \hat{a}, a)$}}
+  現在の合成状態 $\bm{s}$ において，アクション $\hat{a}$ の実行後に別のアクション $a$ を実行可能にするために必要な最小ステップ数（切り替えコスト）．
+  これは動的な状態に依存するため，探索中に都度計算される．
+\end{description}
+
+RAは，現在の状態で発火可能なReadyアクション集合 $A^R$ を対象に，そこへ至る遷移コスト（Gap）とその先の局所距離（Dist）の和が最小となる経路を探索する．
+これにより，単なる最短距離ではなく，同期のための待機やアクションの切り替えコストを含んだ，より実質的な到達距離を推定している．
 
 \begin{algorithm}
   \caption{Ready Abstractionにおける距離推定関数}
@@ -607,6 +617,7 @@ RAの距離推定アルゴリズム（\aref{alg:estimate_dist}）は，現在の
 RAはこの他者の同期待ちという大域的な制約を軽視し，各コンポーネントが局所的な最短経路を選択し続けるような近視眼的な評価を下すため，結果として合流不可能な経路や，効率の悪い脇道状態を優先的に探索する結果となる．
 
 \subsection{具体的な不適合例：金属加工システム}
+\label{subsec:ra_metal_processing_example}
 
 RAが不適切な誘導を行う具体的なシナリオとして，\aref{fig:metal_processing_model}に示す金属加工システムのモデルを用いて説明する．
 
@@ -751,21 +762,28 @@ RAを用いた場合でも，最終的には適切な制御器が合成される
   \descitem{Step 2: RAによるヒューリスティック評価と誤った選択}
   状態 $\bm{s}_1$ において，RAは次に選択すべきアクションを決定する．
   この時点で局所的に発火可能なアクション（Readyアクション）の集合は，$A^R = \{\text{研磨}, \text{皮膜}, \text{溶解}, \text{成形}, \text{出荷}\}$ である．
-  RAは，Readyアクションのうち展開可能なアクション「研磨」，「皮膜」，「溶解」について，目標（Marked状態）までの距離を推定する．
+
+  まず，環境モデル $E_\mathit{env}$ および要求モデル $E_\mathit{req}$ の評価を行う．
+  これらは設定により全状態がMarkedであるため，現在の状態が既に目標であるとみなされる．したがって，これらのコンポーネントにおける距離推定値は $1$ となり，アクション選択の差別化要因とならない．
+
+  したがって，評価の差が生じるのは Mark判定モデル $E_M$ における推定である．
+  $E_M$ がMarked状態（状態1）へ遷移するためには，同期アクションである「出荷」の発火が不可欠である．
+  RAは，展開対象のアクション $\hat{a}$ から「出荷」へのGap（遷移コスト）と，その先の $E_M$ における距離（Dist）の和として値を算出する．
 
   \begin{description}
-    \descitem{$E_\mathit{env}$ および $E_\mathit{req}$ の評価（差がつかない）}
-    設定により全状態がMarkedであるため，現在の状態が既に目標状態であるとみなされる．したがって，これら2つのコンポーネントにおける距離推定値は1となり，アクション選択の差別化要因とならない．
-    \descitem{$E_M$ およびReadyアクションを用いた評価（差が生じる）}
-    $E_M$ が状態1（Marked）へ遷移するためには，同期アクションである「出荷」の発火が不可欠である．
-    \aref{alg:estimate_dist}における距離推定値 $d$ は，展開対象のアクション $\hat{a}$ から「出荷」アクション $a_m$ への切り替えコストである $\textsc{CalculateGap}(\bm{s}_1, \hat{a}, a_m)$ と，そこからMarked状態へ到達する距離（ここでは1）の和として計算される．
-    \begin{description}
-      \item[研磨・皮膜] $E_\mathit{env}$ において，「研磨」または「皮膜」から「出荷」へのGap（遷移コスト）は1である．したがって，Marked状態への距離推定値 $d$ は，$1 + 1 = 2$ と評価される．
-      \item[溶解] $E_\mathit{env}$ において，「溶解」から「成形」「冷却」を経て「出荷」に至る最小のGapは3である．したがって，Marked状態への距離推定値 $d$ は，$3 + 1 = 4$ と評価される．
-    \end{description}
+    \descitem{選択肢A：「研磨」または「皮膜」}
+    環境モデル $E_\mathit{env}$ において，「研磨」または「皮膜」から「出荷」へのGapは $1$ である．
+    一方，$E_M$ において「出荷」発火後の状態はMarked状態そのものであるため，その距離（Dist）は $1$ である．
+    よって，推定距離は $d = 1 + 1 = 2$ と算出される．
+
+    \descitem{選択肢B：「溶解」}
+    環境モデル $E_\mathit{env}$ において，「溶解」から「成形」「冷却」を経て「出荷」に至る最小のGapは $3$ である．
+    $E_M$ における距離（Dist）は同様に $1$ である．
+    よって，推定距離は $d = 3 + 1 = 4$ と算出される．
   \end{description}
 
-  この結果，RAは「出荷」への到達コストが低い「研磨」および「皮膜」の2つを，同等に有望なアクションであると判断する．これらは「溶解」よりも優先度が高いため，探索アルゴリズムはまずこの2つのアクションのいずれか（例えば「研磨」）を選択し，状態 $\bm{s}_2 = (4, 0, 0)$ への遷移を行う．
+  RAはこの推定値に基づき，距離の小さい（$2 < 4$）「研磨」および「皮膜」を優先すべき有望なアクションと判断する．
+  その結果，アルゴリズムは正解ルートである「溶解」を後回しにし，まずは見かけ上のコストが低い「研磨」を選択して状態 $\bm{s}_2 = (4, 0, 0)$ への遷移を行う．
 
   \descitem{Step 3: 経路の行き詰まりと繰り返される不要な探索}
   遷移後の状態 $\bm{s}_2 = (4, 0, 0)$ において，環境モデル上では出荷が可能である．
@@ -815,6 +833,303 @@ DCSのOn-The-Fly探索では，数十万の状態を探索することが珍し�
 
 \chapter{Pre-Marking Direction}
 \label{chap:pre_marking_direction}
+
+本章では，前章で指摘したReady Abstraction（RA）の課題を解決するため，新たなヒューリスティック手法であるPre-Marking Direction（PMD）を提案する．
+PMDは，目標アクションの発火に不可欠な同期イベントに着目し，複雑なReadyアクショングラフの探索を行わずに，静的な構造情報のみを用いて効率的な探索を実現する手法である．
+
+\section{Pre-Markingアクション}
+
+本節では，提案手法の核となる概念であるPre-Markingアクション（PMA）を定義する．
+前章で述べたように，RAの主な課題は同期構造の無視にある．
+複数のコンポーネントが同期してMarkingアクションを発火する必要がある場合，すべてのコンポーネントが準備完了状態になるまでMarkingアクションは発火できない．
+したがって，探索の指針とすべきシステム全体のボトルネックは，目標への到達に最も時間を要するコンポーネントによって決定される．
+
+複数のMarkingアクションが存在する場合，Non-Blocking性はそれらのうちいずれか一つへの到達が可能であれば満たされる．
+したがって，特定の目標への到達にのみ必須となるアクションは，別経路による回避が可能であるため，システム全体のボトルネックとはみなせない．
+ゆえに，本研究ではすべてのMarkingアクションへの到達において共通して不可避なアクションのみをPre-Markingアクションと定義する．
+
+\subsection{PMAの定義}
+
+Pre-Markingアクションは，LTSの構造に基づいて静的に定義される属性である．
+あるLTS $E_i = (S_E, s_{E,0}, A_E, A^M_E, \Delta_E)$ において，初期状態 $s_{E,0}$ から始まり，ある特定のMarkingアクション $a_m \in A^M_E$ の発火をもって終了する有限トレースの集合を $T_{s_{E,0} \to a_m}$ とする．
+
+$$
+  T_{s_{E,0} \to a_m} = \{ t \in T_{E} \mid t = s_0, a_0, \dots, s_j, a_j, \ s_0 = s_{E,0} \land a_j = a_m \}
+$$
+
+このとき，初期状態から $a_m$ に到達するために不可避なアクション集合 $A^\mathit{Required}_{s_{E,0} \to a_m}$ は以下のように定義される．
+
+$$
+  A^\mathit{Required}_{s_{E,0} \to a_m} = \{ a \in A_{E} \setminus \{a_m\} \mid \forall t \in T_{s_{E,0} \to a_m}, a \in A_t \}
+$$
+
+ここで，$A_t$ はトレース $t$ に含まれるアクションの集合を表す．
+$E$ におけるPre-Markingアクションの集合 $A^P_{E}$ は，すべてのMarkingアクションに対する $A^\mathit{Required}$ の積集合として定義される．
+
+\begin{definition}[Pre-Markingアクション]
+  アクション $a \in A_{E}$ が以下の条件を満たすとき，$a$ はPre-Markingアクションである．
+  $$
+    a \in \bigcap_{a_m \in A^M_{E}} A^\mathit{Required}_{s_{E,0} \to a_m}
+  $$
+\end{definition}
+
+この定義により，PMAは目標がいかなる形で達成されるとしても，回避することのできない構造上の通過点であることが保証される．
+
+実際の探索において，各状態 $s \in S_{E}$ は，その時点において未発火であるPMAの集合を保持する．
+状態 $s$ における未発火PMA集合 $A^P_s$ は，大域的に定義された $A^P_{E}$ のうち，状態 $s$ からMarkingアクションへ到達するために今後必ず発火しなければならないアクションの集合である．
+なお，初期状態 $s_{E,0}$ においては，未発火のPMA集合は大域的な定義と一致するため，$A^P_{s_{E,0}} = A^P_{E}$ が成立する．
+PMDはこの $A^P_s$ を用いることで，その状態が目標達成に対して不可避な手順をあとどれだけ残しているかを定量化する．
+
+\subsection{PMAの抽出アルゴリズム}
+
+PMAの抽出および各状態への割り当ては，探索前の静的解析によって行われる．
+本手法では，後述する距離推定のために算出が必要となる，各状態から各アクションへの最短ステップ数の情報を活用し，効率的な候補の絞り込みと逆方向探索を組み合わせた2段階のアルゴリズムを採用している．
+
+\subsubsection{最短パス情報を用いた候補特定}
+
+第一段階では，Pre-Markingアクションとなり得る候補集合 $A^{\mathit{MP}}_{E}$ を特定する．
+PMDではヒューリスティック計算のために，各状態から各アクションへの最短ステップ数を事前に算出する．
+真に回避不能なアクション（PMA）は，初期状態から目標へ至るすべてのパスに含まれるため，最短パス上にも必ず存在する．
+この性質を利用し，初期状態から各Markingアクションへの最短パス上に存在するアクションの積集合をとることで，PMAの候補を効率的に絞り込む．
+
+具体的には，各Markingアクション $a_m \in A^M_E$ に対し，初期状態から $a_m$ に至る最短パスを一つ選択し，それに含まれるアクション集合を取得する．
+そして，すべての $a_m$ についてこれらの積集合を計算し，これを候補集合 $A^{\mathit{MP}}_{E}$ とする．
+この操作は，既存の距離計算結果を再利用するため，追加の探索コストを低く抑えることが可能である．
+
+\subsubsection{逆伝播による判定と状態への割り当て}
+
+第二段階では，候補アクション $a \in A^{\mathit{MP}}_{E}$ が真にPMAであるか，および具体的にどの状態において未発火であるかを判定する．
+これを状態ごとに順方向に探索して判定すると計算コストが高くなるため，本手法ではMarkingアクション側からの逆伝播による一括判定を行う．
+
+ある候補アクション $a$ について，以下の手順で判定を行う．
+まず，Markingアクションを直ちに発火可能な状態集合を起点とし，遷移を逆方向に辿りながら到達可能な状態集合 $S^*$ を探索する．
+この際，アクション $a$ による遷移は通行止めとみなして探索を行わない．
+この逆探索によって到達できた状態群 $S^*$ は，アクション $a$ を経由せずにMarkingアクションの発火可能状態へ到達できる状態である．すなわち，これらの状態において $a$ は回避可能，あるいは既に通過済みであるため，未発火のPMAには該当しない．
+
+探索の結果，初期状態 $s_{E,0}$ が $S^*$ に含まれない場合，初期状態から $a$ を回避して目標へ到達する経路が存在しないことを意味する．
+この場合，アクション $a$ はシステム全体のPre-Markingアクションとして確定される．
+そして，逆探索で到達できなかった状態集合（$S_E \setminus S^*$）に対して，$a$ を未発火PMAとして割り当てる．
+このアルゴリズムを\aref{alg:pma_extraction}に示す．
+
+\begin{algorithm}
+  \caption{PMA抽出および割り当てアルゴリズム}
+  \label{alg:pma_extraction}
+  \begin{algorithmic}[1]
+    \Require{LTS $E$}
+    \Ensure{各状態 $s$ における未発火PMA集合 $M^P_E: S_{E} \to 2^{A_{E}}$}
+
+    \LComment{Step 1: 最短パス情報による候補特定}
+    \State $A^{\mathit{MP}}_{E} \gets A_{E}$
+    \ForAll{$a_m \in A^M_E$}
+      \LComment{最短トレースに含まれるアクション集合との積集合で更新}
+      \State $t \gets \operatorname*{argmin}_{t \in T_{s_{E,0} \to a_m}} |t|$
+      \State $A^{\mathit{MP}}_{E} \gets A^{\mathit{MP}}_{E} \cap A_t$
+    \EndFor
+
+    \Statex
+    \LComment{Step 2: 逆伝播による状態への割り当て}
+    \ForAll{$s \in S_E$}
+      $M^P_E(s) \gets \emptyset$ \Comment{全状態で空集合に初期化}
+    \EndFor
+    \For{$a \in A^{\mathit{MP}}_E$}
+      \LComment{Markingアクションを直ちに発火可能な状態集合}
+      \State $S^* \gets \{ s \in S_E \mid \exists a_m \in A^M_E, \exists s', (s, a_m, s') \in \Delta_E \}$
+      \State $S^*_{\mathit{prev}} \gets \emptyset$
+
+      \While{$S^*_\mathit{prev} \neq S^*$}
+        \State $S^*_\mathit{prev} \gets S^*$
+        \ForAll{$s \in S^*_\mathit{prev}$}
+          \LComment{$s$ へ遷移可能な親状態 $s'$ を探索（逆伝播）}
+          \ForAll{$(s', a', s) \in \Delta_E$}
+            \If{$a' \neq a$}
+              \State $S^* \gets S^* \cup \{s'\}$
+            \EndIf
+          \EndFor
+        \EndFor
+      \EndWhile
+
+      \LComment{初期状態から回避不能である（真のPMAである）場合のみ割り当て}
+      \If{$s_{E,0} \notin S^*$}
+        \For{$s \in S_{E} \setminus S^*$}
+          \State $M^P_E(s) \gets M^P_E(s) \cup \{a\}$
+        \EndFor
+      \EndIf
+
+    \EndFor
+
+    \Statex
+    \Return $M^P_E$
+  \end{algorithmic}
+\end{algorithm}
+
+\section{Pre-Marking Directionによる評価}
+
+Pre-Marking Direction（PMD）は，展開対象となるアクション $\hat{a}$ の有望さを，そのアクションを実行した結果生じる遷移先の状態 $\bm{s}'$ に基づいて評価する．
+この評価計算においては，各LTSの静的構造解析により事前に算出された最短距離関数 $\textsc{CalculateDist}$ が用いられる．
+RAが探索ステップごとにReadyアクショングラフ上の動的な最短経路探索を必要とするのに対し，PMDは事前計算された距離関数の参照と単純な比較演算によって評価値を算出するため，探索時における計算負荷を大幅に低減している．
+
+具体的な評価手順を\aref{alg:pmd_heuristic}に示す．
+本手法では，まずアクション $\hat{a}$ を実行した後の状態 $\bm{s}'$ を導出し，その時点で未発火であるPMAの集合 $A^P_{\bm{s}'}$ を特定する．
+これは，その遷移を選んだ場合に依然として回避できない必須タスクの残存量を表す．
+
+続いて，各コンポーネント $E_i$ について，自身の目標であるMarkingアクション，およびシステム全体で必要とされる未発火PMA群への到達距離を評価する．
+ここで，各コンポーネントの推定距離 $d_{E_i}$ は，自身のMarkingアクションへの最短距離と，自身が関与すべき未発火PMAへの最短距離に$1$を加えた値のうち，より大きな値として算出される．
+この加算処理は，PMAが目標達成のための通過点として定義されており，その発火後もMarkingアクションに至るまでに少なくとも1ステップの遷移を要するという構造的制約を反映したものである．
+この最大値をとる操作により，たとえ自身の局所的な目標が近くても，遠方にある同期アクションの発火に参加しなければならない場合，その移動と待機がシステム全体の進行を律速する要因となることを数理的に表現している．
+
+算出された各コンポーネントの距離 $d_{E_i}$ は降順にソートされ，辞書式順序による比較に用いられる．
+これにより，システム内で最も遅延しているボトルネックを優先的に解消する遷移が選択されることになる．
+
+\begin{algorithm}
+  \caption{Pre-Marking Directionによるヒューリスティック関数}
+  \label{alg:pmd_heuristic}
+  \begin{algorithmic}[1]
+    \Require{%
+      全てのLTSの組 $\bm{E} = (E_1, E_2, \ldots, E_n)$， \\
+      現在の状態 $\bm{s} = (s_{E_1}, s_{E_2}, \ldots, s_{E_n})$， \\
+      展開対象のアクション $\hat{a}$
+    }
+    \Ensure{%
+      各LTSにおける距離の降順の組 $\bm{d} = (d_1, d_2, \ldots, d_n)$ \\
+      ただし，$d_i \in \mathbb{N} \cup \{\infty\}$
+    }
+
+    \Function{PreMarkingDirectionHeuristic}{$\bm{E}, \bm{s}, \hat{a}$}
+
+    \If{$\hat{a} \in A^M$}
+      \Return $(0, 0, \ldots, 0)$ \Comment{Markingアクションの場合，距離0（最優先）を返す}
+    \EndIf
+
+    \Statex
+    \LComment{Step 1: アクション$\hat{a}$実行後の次状態 $\bm{s}'$ を導出}
+    \For{$i = 1, \ldots, n$}
+      \If{$\hat{a} \in A_{E_i}$}
+        \State $s'_{E_i} \gets s' \text{ where } (s_{E_i}, \hat{a}, s') \in \Delta_{E_i}$
+      \Else
+        \State $s'_{E_i} \gets s_{E_i}$
+      \EndIf
+    \EndFor
+    \State $\bm{s}' \gets (s'_{E_1}, s'_{E_2}, \ldots, s'_{E_n})$
+
+    \Statex
+    \LComment{Step 2: 次状態 $\bm{s}'$ における未発火PMA集合の特定}
+    \State $A^P_{\bm{s}'} \gets \emptyset$
+    \For{$i = 1, \ldots, n$}
+      \State $A^P_{\bm{s}'} \gets A^P_{\bm{s}'} \cup M^P_{E_i}(s'_{E_i})$
+    \EndFor
+
+    \Statex
+    \LComment{Step 3: 各コンポーネントのボトルネック距離推定}
+    \For{$i = 1, \ldots, n$}
+      \State $d_{E_i} \gets 1$
+
+      \LComment{自身のMarkingアクションへの最短距離で更新}
+      \If{$A^M_{E_i} \neq \emptyset$}
+        \State $\mathit{minSteps} \gets \min_{a_m \in A^M_{E_i}} \textsc{CalculateDist}(s'_{E_i}, a_m)$
+        \State $d_{E_i} \gets \mathit{minSteps}$
+      \EndIf
+
+      \LComment{未発火のPMAへの距離によって更新}
+      \If{$A^P_{\bm{s}'} \cap A_{E_i} \neq \emptyset$}
+        \State $\mathit{maxSteps} \gets \max_{a_p \in A^P_{\bm{s}'} \cap A_{E_i}} \textsc{CalculateDist}(s'_{E_i}, a_p) + 1$
+        \State $d_{E_i} \gets \max(d_{E_i}, \mathit{maxSteps})$
+      \EndIf
+    \EndFor
+
+    \Statex
+    \Return $\textsc{SortDescending}((d_{E_1}, d_{E_2}, \ldots, d_{E_n}))$
+    \Comment{距離を降順でソートして返す}
+
+    \EndFunction
+  \end{algorithmic}
+\end{algorithm}
+
+\section{探索挙動の改善例：金属加工システム}
+
+本節では，\aref{subsec:ra_metal_processing_example}で述べた金属加工システムの例題に対し，提案手法であるPMDを適用した場合の探索挙動を示す．
+RAが陥った局所解への迷走を，PMDがいかにして回避し，同期に不可欠なアクションを見据えた適切な探索を行うかについて詳述する．
+
+\subsection{Pre-Markingアクションの抽出結果}
+
+探索に先立ち，PMDは各LTSの構造解析を行い，Pre-Markingアクション（PMA）の抽出を行う．
+本システムにおいて抽出されるPMAは以下の通りである．
+
+まず，環境モデル $E_\mathit{env}$ においては，初期状態から目標アクション「出荷」へ至るすべての経路において，最初のアクションである「金属準備」が必ず実行される．
+したがって，「金属準備」は $E_\mathit{env}$ におけるPMAとして抽出される．
+なお，「成形」などの加工アクションは，$E_\mathit{env}$ 単体で見ると「研磨」ルートによる回避が可能であるため，環境モデルのPMAとはならない．
+
+次に，要求モデル $E_\mathit{req}$ においては，初期状態から「出荷」へ至る適法なトレースにおいて，アクション「成形」は必ず一度は発火されなければならない．
+「成形」を回避して「出荷」を行う経路は，違反状態へ遷移する経路のみであるため，「成形」は $E_\mathit{req}$ におけるPMAとして正しく抽出される．
+
+この結果，探索開始時の初期状態において，システム全体の未発火PMA集合は $\{\text{金属準備}, \text{成形}\}$ となる．
+
+\subsection{分岐点におけるヒューリスティック評価の比較}
+
+RAが誤った選択を行った分岐点である状態 $\bm{s}_1 = (1, 0, 0)$ におけるPMDの挙動を追跡する．
+この状態に至る遷移で「金属準備」は既に実行されているため，ここでの課題は残るPMAである「成形」をいかに効率よく消化するかにある．
+
+この状態において展開可能なアクションは「研磨」，「皮膜」，「溶解」の3つである．
+なお，要求モデル $E_\mathit{req}$ は，これらいずれのアクションによっても状態遷移せず初期状態（状態0）に留まる．そのため，$E_\mathit{req}$ 側での評価値はすべての候補で一定となり，選択の差異要因とはならない．
+したがって，以下では環境モデル $E_\mathit{env}$ 側の遷移と評価値に焦点を当てて比較を行う．
+
+PMDは展開可能な各アクション $\hat{a}$ を選択した後の次状態 $\bm{s}'$ を導出し，その時点での未発火PMAへの距離を考慮して以下の式で距離 $d_{E_\mathit{env}}$ を算出する．
+$$
+  d_{E_\mathit{env}} = \max(\textsc{CalculateDist}(s'_{E_\mathit{env}}, \text{出荷}), \quad \textsc{CalculateDist}(s'_{E_\mathit{env}}, \text{成形}) + 1)
+$$
+
+\begin{description}
+  \descitem{選択肢A：「研磨」または「皮膜」}
+  これらのアクションを選択した場合，環境モデル $E_\mathit{env}$ は状態4へ遷移する．
+  この遷移後の状態においてもPMA「成形」は未発火のままであるため，PMDはそこへの距離を計算に含める．
+  \begin{description}
+    \item[目標（出荷）への距離]
+          直後の遷移で「出荷」が可能であるため，距離は $1$ である．
+    \item[未発火PMA（成形）への距離]
+          状態4から「成形」へ到達するためには，一度「出荷」を行って初期状態へ戻り，再度「金属準備」「溶解」を経る必要がある．この最短パス（出荷 $\to$ 金属準備 $\to$ 溶解 $\to$ 成形）の長さは $4$ である．
+  \end{description}
+  したがって，評価値は $d_{E_\mathit{env}} = \max(1, 4 + 1) = 5$ と算出される．
+
+  \descitem{選択肢B：「溶解」}
+  このアクションを選択した場合，環境モデル $E_\mathit{env}$ は状態2へ遷移する．
+  同様にPMA「成形」は未発火であるが，状態が変化したことでそこへの距離が短縮される．
+  \begin{description}
+    \item[目標（出荷）への距離]
+          状態2から「出荷」へ至るには，「成形」「冷却」を経て待機状態に戻り，そこから「研磨」等を経由する必要がある．この最短パス（成形 $\to$ 冷却 $\to$ 研磨 $\to$ 出荷）の長さは $4$ である．
+    \item[未発火PMA（成形）への距離]
+          直後の遷移で「成形」が可能であるため，距離は $1$ である．
+  \end{description}
+  したがって，評価値は $d_{E_\mathit{env}} = \max(4, 1 + 1) = 4$ と算出される．
+\end{description}
+
+\subsection{探索の結果}
+
+算出された推定距離を比較すると，「研磨・皮膜」の評価値 $5$ に対し，「溶解」の評価値は $4$ となり，より小さい値を示す．
+PMDは，見かけ上は目標（出荷）に近い「研磨」ルートに対し，未発火PMA（成形）への到達が困難になる（初期状態への手戻りが必要になる）という構造的理由からペナルティを与え，逆に目標へは遠回りでもPMAを確実に消化できる「溶解」ルートを正しく推奨する．
+
+結果として，探索アルゴリズムはバックトラックを発生させることなく，初手から正解ルートである「溶解」$\to$「成形」$\to$「冷却」$\to$「出荷」の経路を選択する．
+これにより，RAで発生していた不要な探索空間の展開が完全に抑制され，最短ステップでの解の発見が実現される．
+
+\section{評価実験}
+
+提案手法の有効性を検証するために実施したベンチマーク実験の結果を述べる．
+
+\subsection{実験設定}
+% 使用したベンチマーク問題，環境，比較対象など
+
+\subsection{実験結果}
+% 探索状態数，計算時間，PMAの個数などの表・グラフ
+
+\section{考察と適用戦略}
+\label{sec:discussion}
+
+実験結果に基づき，PMDの特性と適用範囲について考察する．
+
+\subsection{PMDの有効性と限界}
+% PMAが多く検出される問題では圧倒的に早いが，PMAがほぼ検出できない問題ではRAに劣る場合があること（結果からわかること）
+
+\subsection{RAとの動的切り替え戦略}
+% 先にPMD（PMA算出）を試み，その結果によってRAと使い分ける戦略
+% PMA算出コスト（数百ms）が探索全体に比べて軽微であるため，まずはPMAを計算し，PMA数が十分であればPMD，そうでなければRAを選択するというハイブリッドな戦略が有効である点について論じる．
 
 \chapter{関連研究}
 \label{chap:related_works}
