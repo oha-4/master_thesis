@@ -1,3 +1,33 @@
-\begin{thebibliography}{}
+\begin{thebibliography}{1}
+
+\bibitem{Heuristic}
+Blai Bonet and Héctor Geffner.
+\newblock Planning as heuristic search.
+\newblock {\em Artificial Intelligence}, Vol. 129, No.~1, pp. 5--33, 2001.
+
+\bibitem{DirectedControllerSynthesis}
+Daniel Ciolek, Victor Braberman, Nicolás D'Ippolito, and Sebastián Uchitel.
+\newblock Directed controller synthesis of discrete event systems: Taming composition with heuristics.
+\newblock In {\em 2016 IEEE 55th Conference on Decision and Control (CDC)}, pp. 4764--4769, 2016.
+
+\bibitem{ReadyAbstraction}
+Daniel Ciolek, Matias Duran, Florencia Zanollo, Nicolas Pazos, Juli\'{a}n Braier, Victor Braberman, Nicolas D’Ippolito, and Sebastian Uchitel.
+\newblock On-the-fly informed search of non-blocking directed controllers.
+\newblock {\em Automatica}, Vol. 147, No.~C, January 2023.
+
+\bibitem{DirectedController}
+Jing Huang and Ratnesh Kumar.
+\newblock Directed control of discrete event systems for safety and nonblocking.
+\newblock {\em IEEE Transactions on Automation Science and Engineering}, Vol.~5, No.~4, pp. 620--629, 2008.
+
+\bibitem{DiscreteControllerSynthesis}
+P.~J. Ramadge and W.~M. Wonham.
+\newblock Supervisory control of a class of discrete event processes.
+\newblock {\em SIAM Journal on Control and Optimization}, Vol.~25, No.~1, pp. 206--230, 1987.
+
+\bibitem{DiscreteEventSystem}
+P.J.G. Ramadge and W.M. Wonham.
+\newblock The control of discrete event systems.
+\newblock {\em Proceedings of the IEEE}, Vol.~77, No.~1, pp. 81--98, 1989.
 
 \end{thebibliography}
