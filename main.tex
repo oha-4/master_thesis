@@ -188,7 +188,7 @@ DESは有限状態オートマトン（あるいはLTS）の並列合成によ�
 
 \subsection{ラベル付き遷移系}
 
-本研究では，システムを構成する各コンポーネントをラベル付き遷移系（Labeled Transition System, LTS）としてモデル化する．
+本論文における離散制御器合成の定式化として，システムを構成する各コンポーネントをラベル付き遷移系（Labeled Transition System, LTS）としてモデル化する．
 なお，本研究ではMarkingアクション（アクションベースの目標）を主に用いるが，既存研究ではMarked状態（状態ベースの目標）を用いることもある．
 この両者を扱えるよう，LTSにはMarked状態集合とMarkingアクション集合の両方を持たせる（必要に応じて片方を空集合または全体集合として扱う）．
 
@@ -217,6 +217,17 @@ DESは有限状態オートマトン（あるいはLTS）の並列合成によ�
   をトレースと呼ぶ．
   ただし，各$i$について$(s_i, a_i, s_{i+1}) \in \Delta_E$が成り立つ．
   $E$上のトレースの集合を$T_E$で表す．
+\end{definition}
+
+\begin{definition}[有効トレース集合]
+  LTS $E$ において，状態 $s \in S_E$ を始点とし，アクション集合 $A \subseteq A_E$ のいずれかの発火をもって終了する有限トレースのうち，途中で違反状態 $S^I_E$ を経由しないものの集合を $T_{s \to A}$ と定義する．
+  $$
+    T_{s \to A} = \left\{
+    (s_0, a_0, \dots, s_n) \in T_E \;\middle|\;
+    s_0 = s \land a_{n-1} \in A \land \bigwedge_{i = 0}^n s_i \notin S^I_E
+    \right\}
+  $$
+  この集合が空でない（$T_{s \to A} \neq \emptyset$）とき，状態 $s$ から $A$ へ安全に到達可能である．
 \end{definition}
 
 \subsection{同期アクションと並列合成}
@@ -290,9 +301,12 @@ DESは有限状態オートマトン（あるいはLTS）の並列合成によ�
 \subsection{MarkingアクションからMarked状態への変換}
 \label{subsec:marking_to_marked}
 
-本研究では，目標を特定の状態への到達ではなく，Markingアクション集合 $A^M$ のいずれかの要素が発火することとして定義する．既存のReady Abstraction (RA) の枠組みは状態ベースの目標を想定しているため，アクションベースの目標を状態ベースに変換するためのLTS $E_M$ を導入し，他のコンポーネントの設定を調整する．
+本研究では，目標をMarkingアクション集合 $A^M$ の発火として定義する．
+一方，RAはMarked状態への到達可能性に基づくヒューリスティックである．
+そのため，本研究の定式化をRAの枠組みに適用するにあたり，アクションの発火イベントを状態として保持するMarking判定LTS $E_M$ を用いて，アクションベースの目標を等価な状態ベースの目標へと帰着させる．
 
-合成対象のコンポーネント集合を $\mathcal{E} = \{E_1, \dots, E_n\}$ とし，全コンポーネントのアクション集合の和を $A = \bigcup_{i=1}^n A_{E_i}$ とする．このとき，Markingアクションの発生を状態として保持するMarking判定LTS $E_M = (S_{E_M}, s_{E_M,0}, S^I_{E_M}, S^M_{E_M}, A_{E_M}, A^M_{E_M}, \Delta_{E_M})$ を以下のように定義する：
+合成対象のコンポーネント集合を $\mathcal{E} = \{E_1, \dots, E_n\}$ とし，全コンポーネントのアクション集合の和を $A = \bigcup_{i=1}^n A_{E_i}$ とする．
+このとき，$E_M = (S_{E_M}, s_{E_M,0}, S^I_{E_M}, S^M_{E_M}, A_{E_M}, A^M_{E_M}, \Delta_{E_M})$ は以下のように定義される：
 
 \begin{itemize}
   \item $S_{E_M} = \{0, 1\}$, $s_{E_M,0} = 0$, $S^I_{E_M} = \emptyset$, $S^M_{E_M} = \{1\}$
@@ -438,7 +452,7 @@ Rank 0での推定が不可能な場合に限り，任意のMarked状態への�
 
       \LComment{Rank 0: 探索到達済みのMarked状態への到達可能性確認}
       \ForAll{$(s^*_{E_1}, s^*_{E_2}, \ldots, s^*_{E_n}) \in \bm{S}^M$}
-        \State $\mathit{steps} \gets \textsc{EstimateDist}(\bm{s}, \hat{a}, s^*_{E_i})$
+        \State $\mathit{steps} \gets \textsc{EstimateDistToState}(\bm{s}, \hat{a}, s^*_{E_i})$
         \If{$\mathit{steps} < \mathit{minSteps}$}
           $\mathit{minSteps} \gets \mathit{steps}$
         \EndIf
@@ -452,7 +466,7 @@ Rank 0での推定が不可能な場合に限り，任意のMarked状態への�
 
       \LComment{Rank 1: 任意のMarked状態への到達可能性確認}
       \ForAll{$s^*_{E_i} \in S^M_{E_i}$}
-        \State $\mathit{steps} \gets \textsc{EstimateDist}(\bm{s}, \hat{a}, s^*_{E_i})$
+        \State $\mathit{steps} \gets \textsc{EstimateDistToState}(\bm{s}, \hat{a}, s^*_{E_i})$
         \If{$\mathit{steps} < \mathit{minSteps}$}
           $\mathit{minSteps} \gets \mathit{steps}$
         \EndIf
@@ -485,8 +499,8 @@ Rank 0での推定が不可能な場合に限り，任意のMarked状態への�
 
 \subsection{距離推定の中核}
 
-Ready Abstractionにおける距離推定の手続きを\aref{alg:estimate_dist}に示す．
-この関数 $\textsc{EstimateDist}$ は，現在の合成状態 $\bm{s}$，評価対象のアクション $\hat{a}$，および目標状態 $s^*_{E_i}$ を入力とし，推定距離 $d$ を算出する．
+Ready Abstractionにおける距離推定の手続きを\aref{alg:estimate_dist_to_state}に示す．
+この関数 $\textsc{EstimateDistToState}$ は，現在の合成状態 $\bm{s}$，評価対象のアクション $\hat{a}$，および目標状態 $s^*_{E_i}$ を入力とし，推定距離 $d$ を算出する．
 
 本アルゴリズムでは，推定のために以下の2つの補助関数を利用する．
 
@@ -505,7 +519,7 @@ RAは，現在の状態で発火可能なReadyアクション集合 $A^R$ を対
 
 \begin{algorithm}
   \caption{Ready Abstractionにおける距離推定関数}
-  \label{alg:estimate_dist}
+  \label{alg:estimate_dist_to_state}
   \begin{algorithmic}[1]
     \Require{%
       現在の状態 $\bm{s} = (s_{E_1}, \ldots, s_{E_n})$， \\
@@ -514,7 +528,7 @@ RAは，現在の状態で発火可能なReadyアクション集合 $A^R$ を対
     }
     \Ensure{推定距離 $d \in \mathbb{N} \cup \{\infty\}$}
 
-    \Function{EstimateDist}{$\bm{s}, \hat{a}, s^*_{E_i}$}
+    \Function{EstimateDistToState}{$\bm{s}, \hat{a}, s^*_{E_i}$}
 
     \If{$\hat{a} \in A_{E_i}$} \Comment{$\hat{a}$ がLTS $E_i$ に存在している場合}
       \State $s'_{E_i} \gets s' \text{ where } (s_{E_i}, \hat{a}, s') \in \Delta_{E_i}$ \Comment{$\hat{a}$ を発火した後の状態}
@@ -526,27 +540,26 @@ RAは，現在の状態で発火可能なReadyアクション集合 $A^R$ を対
       \ElsIf{$s'_{E_i} \ne s_{E_i}$} \Comment{他の状態に遷移する場合}
         \Return $\textsc{CalculateDist}(s'_{E_i}, s^*_{E_i}) + 1$
       \EndIf
-    \ElsIf{$s_{E_i} = s^*_{E_i}$} \Comment{$\hat{a}$で遷移が発生せず，すでに対象の状態の場合}
-      \Return $1$
     \EndIf
 
     \Statex
+    \LComment{各LTS上で，現在の状態から発火可能なアクション（Readyアクション）を収集}
+    \State $A^R \gets \bigcup_{i=1}^{n} \{a \mid \exists s, (s_{E_i}, a, s) \in \Delta_{E_i}, s \neq s_{E_i}, s \notin S^I_{E_i}\}$
 
-    \LComment{各LTS上で，現在の状態から発火可能なアクションのうち，自己ループでないものの集合}
-    \For{$j = 1, 2, \ldots, n$}
-      \State $A^R_{E_j} \gets \{a \mid \exists s', (s_{E_j}, a, s') \in \Delta_{E_j}, s' \neq s_{E_j}\}$
+    \Statex
+    \LComment{候補アクション $\hat{a}$ から構造的に到達可能なアクション集合 $A^*$ を構築}
+    \State $A^* \gets \emptyset$
+    \For{$i = 1, \ldots, n$}
+      \State $s'_{E_i} \gets s' \text{ where } (s_{E_i}, \hat{a}, s') \in \Delta_{E_i}$
+      \If{$s'_{E_i} \neq \bot \land s'_{E_i} \notin S^I_{E_i}$}
+        \State $A^* \gets A^* \cup \{ a^* \in A^R \mid T_{s'_{E_i} \to \{a^*\}} \neq \emptyset \}$
+      \EndIf
     \EndFor
-    \State $A^R \gets \bigcup_{j=1}^{n} A^R_{E_j}$ \Comment{Readyアクションの集合}
 
     \Statex
-
     \LComment{Gapを加味した最短経路探索}
-    \State $d \gets \min_{a \in A^R}\{\textsc{CalculateGap}(\bm{s}, \hat{a}, a) + \textsc{EstimateDist}(\bm{s}, a, s^*_{E_i})\}$
+    \State $d \gets \min_{a^* \in A^*}\{\textsc{CalculateGap}(\bm{s}, \hat{a}, a^*) + \textsc{EstimateDistToState}(\bm{s}, a^*, s^*_{E_i})\}$
     \LComment{この再帰的な最小値問題は，実装上はダイクストラ法により効率的に解かれる}
-
-    \If{$d = \infty$} \Comment{Readyアクションを用いて距離を推定できない場合}
-      \State $d \gets \textsc{CalculateDist}(s_{E_i}, s^*_{E_i}) + 1$
-    \EndIf
 
     \Return $d$
 
@@ -556,10 +569,6 @@ RAは，現在の状態で発火可能なReadyアクション集合 $A^R$ を対
 
 ここで用いられる \textsc{CalculateGap}$(\hat{a}, a)$ は，アクション間の切り替えのしやすさを表すコストであり，既存研究における定義に従い，あるコンポーネント内でアクション $\hat{a}$ を経て $a$ へ至る最短パスの長さ（から1を引いた値）として計算される．
 
-以上により，RAは局所情報から，次にどのアクションを展開するのが有望かを推定する枠組みを提供する．
-On-The-Fly探索側では，これらの推定値を用いて展開順序を制御することで，合成状態空間の全探索を避けつつ，目的を満たす制御器の発見を狙う．
-
-\begin{comment}
 \subsection{Markingアクションまでの距離推定}
 
 RAは，Marked状態への到達距離を推定する枠組みとして提案されている．
@@ -567,7 +576,7 @@ RAは，Marked状態への到達距離を推定する枠組みとして提案さ
 そこで本節では，Markingアクション集合 $A^M$ に対する距離推定手続きとして\textsc{EstimateDistToMarking}を示す．
 
 \textsc{EstimateDistToMarking}は，候補アクション$\hat{a}$がMarkingアクションであれば距離1を返し，そうでなければ，合成状態$\bm{s}$から（同期を無視すれば）状態を変化させ得るアクション集合$A^R$を介して，Gapとその先での推定距離の和の最小値を再帰的に求める．
-構造は\aref{alg:estimate_dist}（\textsc{EstimateDist}）と同型であり，終端条件がMarked状態ではなくMarkingアクションになっている点が相違である．
+構造は\aref{alg:estimate_dist_to_state}（\textsc{EstimateDistToState}）と同型であり，終端条件がMarked状態ではなくMarkingアクションになっている点が相違である．
 
 なお，\textsc{EstimateDistToMarking}は，探索到達済みMarked状態集合$\bm{S}^M$を基準とするRank 0の推定が利用できない状況，特に$\bm{S}^M=\emptyset$の場合に用いることを想定している．
 
@@ -601,7 +610,6 @@ RAは，Marked状態への到達距離を推定する枠組みとして提案さ
 
 以上により，RAは局所情報から，次にどのアクションを展開するのが有望かを推定する枠組みを提供する．
 On-The-Fly探索側では，これらの推定値を用いて展開順序を制御することで，合成状態空間の全探索を避けつつ，目的を満たす制御器の発見を狙う．
-\end{comment}
 
 \chapter{Ready Abstractionの課題}
 \label{chap:ready_abstraction_limitations}
