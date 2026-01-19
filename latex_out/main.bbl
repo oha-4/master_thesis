@@ -1,9 +1,19 @@
-\begin{thebibliography}{1}
+\begin{thebibliography}{10}
+
+\bibitem{DroneCoordinationScenario}
+Yuki Arioka, Takuto Yamauchi, and Kenji Tei.
+\newblock Pre-controller synthesis for runtime controller synthesis.
+\newblock In {\em 2023 IEEE 13th International Conference on Control System, Computing and Engineering (ICCSCE)}, pp. 161--166, 2023.
 
 \bibitem{Heuristic}
 Blai Bonet and Héctor Geffner.
 \newblock Planning as heuristic search.
 \newblock {\em Artificial Intelligence}, Vol. 129, No.~1, pp. 5--33, 2001.
+
+\bibitem{6Scenarios}
+Daniel~Alfredo Ciolek, Victor Braberman, Nicolás D’Ippolito, Sebastián Sardiña, and Sebastián Uchitel.
+\newblock Compositional supervisory control via reactive synthesis and automated planning.
+\newblock {\em IEEE Transactions on Automatic Control}, Vol.~65, No.~8, pp. 3502--3516, 2020.
 
 \bibitem{DirectedControllerSynthesis}
 Daniel Ciolek, Victor Braberman, Nicolás D'Ippolito, and Sebastián Uchitel.
@@ -14,6 +24,21 @@ Daniel Ciolek, Victor Braberman, Nicolás D'Ippolito, and Sebastián Uchitel.
 Daniel Ciolek, Matias Duran, Florencia Zanollo, Nicolas Pazos, Juli\'{a}n Braier, Victor Braberman, Nicolas D’Ippolito, and Sebastian Uchitel.
 \newblock On-the-fly informed search of non-blocking directed controllers.
 \newblock {\em Automatica}, Vol. 147, No.~C, January 2023.
+
+\bibitem{IntroductionToAlgorithms}
+Thomas~H. Cormen, Charles~E. Leiserson, Ronald~L. Rivest, and Clifford Stein.
+\newblock {\em Introduction to Algorithms, 3rd Edition}.
+\newblock {MIT} Press, 2009.
+
+\bibitem{ModelTransitionSystemAnalyser}
+Nicolas D'Ippolito, Dario Fischbein, Marsha Chechik, and Sebastian Uchitel.
+\newblock Mtsa: The modal transition system analyser.
+\newblock In {\em 2008 23rd IEEE/ACM International Conference on Automated Software Engineering}, pp. 475--476, 2008.
+
+\bibitem{KivaSystemScenario}
+John~J. Enright and Peter~R. Wurman.
+\newblock Optimization and coordinated autonomy in mobile fulfillment systems.
+\newblock In {\em Proceedings of the 9th AAAI Conference on Automated Action Planning for Autonomous Mobile Robots}, AAAIWS'11-09, pp. 33--38. AAAI Press, 2011.
 
 \bibitem{DirectedController}
 Jing Huang and Ratnesh Kumar.

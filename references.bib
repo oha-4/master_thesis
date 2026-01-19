@@ -1,4 +1,4 @@
-@inproceedings{DroneScenario,
+@inproceedings{DroneCoordinationScenario,
   author    = {Arioka, Yuki and Yamauchi, Takuto and Tei, Kenji},
   booktitle = {2023 IEEE 13th International Conference on Control System, Computing and Engineering (ICCSCE)},
   title     = {Pre-controller Synthesis for Runtime Controller Synthesis},
@@ -23,23 +23,7 @@
   keywords = {Planning, Strips, Heuristic search, Domain-independent heuristics, Forward/backward search, Non-optimal planning, Graphplan},
   abstract = {In the AIPS98 Planning Contest, the hsp planner showed that heuristic search planners can be competitive with state-of-the-art Graphplan and sat planners. Heuristic search planners like hsp transform planning problems into problems of heuristic search by automatically extracting heuristics from Strips encodings. They differ from specialized problem solvers such as those developed for the 24-Puzzle and Rubik's Cube in that they use a general declarative language for stating problems and a general mechanism for extracting heuristics from these representations. In this paper, we study a family of heuristic search planners that are based on a simple and general heuristic that assumes that action preconditions are independent. The heuristic is then used in the context of best-first and hill-climbing search algorithms, and is tested over a large collection of domains. We then consider variations and extensions such as reversing the direction of the search for speeding node evaluation, and extracting information about propositional invariants for avoiding dead-ends. We analyze the resulting planners, evaluate their performance, and explain when they do best. We also compare the performance of these planners with two state-of-the-art planners, and show that the simplest planner based on a pure best-first search yields the most solid performance over a large set of problems. We also discuss the strengths and limitations of this approach, establish a correspondence between heuristic search planning and Graphplan, and briefly survey recent ideas that can reduce the current gap in performance between general heuristic search planners and specialized solvers.}
 }
-@inproceedings{ArtGalleryScenario,
-  author    = {Borda, Aimee and Pasquale, Liliana and Koutavas, Vasileios and Nuseibeh, Bashar},
-  title     = {Compositional verification of self-adaptive cyber-physical systems},
-  year      = {2018},
-  isbn      = {9781450357159},
-  publisher = {Association for Computing Machinery},
-  address   = {New York, NY, USA},
-  url       = {https://doi.org/10.1145/3194133.3194146},
-  doi       = {10.1145/3194133.3194146},
-  abstract  = {Cyber-Physical Systems (CPSs) must often self-adapt to respond to changes in their operating environment. However, using formal verification techniques to provide assurances that critical requirements are satisfied can be computationally intractable due to the large state space of self-adaptive CPSs. In this paper we propose a novel language, Adaptive CSP, to model self-adaptive CPSs modularly and provide a technique to support compositional verification of such systems. Our technique allows system designers to identify (a subset of) the CPS components that can affect satisfaction of given requirements, and define adaptation procedures of these components to preserve the requirements in the face of changes to the system's operating environment. System designers can then use Adaptive CSP to represent the system including potential self-adaptation procedures. The requirements can then be verified only against relevant components, independently from the rest of the system, thus enabling computationally tractable verification. Our technique enables the use of existing formal verification technology to check requirement satisfaction. We illustrate this through the use of FDR, a refinement checking tool. To achieve this, we provide an adequate translation from a subset of Adaptive CSP to the language of FDR. Our technique allows system designers to identify alternative adaptation procedures, potentially affecting different sets of CPS components, for each requirement, and compare them based on correctness and optimality. We demonstrate the feasibility of our approach using a substantive example of a smart art gallery. Our results show that our technique reduces the computational complexity of verifying self-adaptive CPSs and can support the design of adaptation procedures.},
-  booktitle = {Proceedings of the 13th International Conference on Software Engineering for Adaptive and Self-Managing Systems},
-  pages     = {1-11},
-  numpages  = {11},
-  location  = {Gothenburg, Sweden},
-  series    = {SEAMS '18}
-}
-@article{CatAndMouseScenario,
+@article{6Scenarios,
   author   = {Ciolek, Daniel Alfredo and Braberman, Victor and D’Ippolito, Nicolás and Sardiña, Sebastián and Uchitel, Sebastián},
   journal  = {IEEE Transactions on Automatic Control},
   title    = {Compositional Supervisory Control via Reactive Synthesis and Automated Planning},
@@ -78,14 +62,25 @@
   numpages   = {10},
   keywords   = {Discrete event systems, Directed control, Heuristic search, On-the-fly}
 }
-@inproceedings{KivaScenario,
+@inproceedings{ModelTransitionSystemAnalyser,
+  author    = {D'Ippolito, Nicolas and Fischbein, Dario and Chechik, Marsha and Uchitel, Sebastian},
+  booktitle = {2008 23rd IEEE/ACM International Conference on Automated Software Engineering},
+  title     = {MTSA: The Modal Transition System Analyser},
+  year      = {2008},
+  volume    = {},
+  number    = {},
+  pages     = {475-476},
+  keywords  = {Analytical models;Construction industry;System recovery;Inspection;Cognition;Computational modeling;Merging},
+  doi       = {10.1109/ASE.2008.78}
+}
+@inproceedings{KivaSystemScenario,
   author    = {Enright, John J. and Wurman, Peter R.},
   title     = {Optimization and coordinated autonomy in mobile fulfillment systems},
   year      = {2011},
   publisher = {AAAI Press},
   abstract  = {The task of coordinating hundreds of mobile robots in one of Kiva System's warehouses presents many challenging multiagent resource allocation problems. The resources include things like inventory, open orders, small shelving units, and the robots themselves. The types of resources can be classified by whether they are consumable, recycled, or scheduled. Further, the global optimization problem can be broken down into more manageable sub-problems, some of which map to (hard) versions of well known computational problems, but with a dynamic, temporal twist.},
   booktitle = {Proceedings of the 9th AAAI Conference on Automated Action Planning for Autonomous Mobile Robots},
-  pages     = {33–38},
+  pages     = {33-38},
   numpages  = {6},
   series    = {AAAIWS'11-09}
 }
@@ -121,3 +116,18 @@
   keywords = {Control systems;Discrete event systems;Automatic control;Operating systems;Control theory;Computational complexity;Automata;Formal languages},
   doi      = {10.1109/5.21072}
 }
+@book{IntroductionToAlgorithms,
+  author    = {Thomas H. Cormen and
+               Charles E. Leiserson and
+               Ronald L. Rivest and
+               Clifford Stein},
+  title     = {Introduction to Algorithms, 3rd Edition},
+  publisher = {{MIT} Press},
+  year      = {2009},
+  url       = {http://mitpress.mit.edu/books/introduction-algorithms},
+  isbn      = {978-0-262-03384-8},
+  timestamp = {Mon, 17 Aug 2020 11:36:12 +0200},
+  biburl    = {https://dblp.org/rec/books/daglib/0023376.bib},
+  bibsource = {dblp computer science bibliography, https://dblp.org}
+}
+
