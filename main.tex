@@ -571,15 +571,15 @@ RAは，現在の状態で発火可能なReadyアクション集合 $A^R$ を対
 
 \subsection{Markingアクションまでの距離推定}
 
-RAは，Marked状態への到達距離を推定する枠組みとして提案されている．
-一方，本研究では目標をMarkingアクションの発火として定式化するため，RAを本研究の目的関数と同じ観点で比較するには，Marked状態ではなくMarkingアクションまでの距離をどのように見積もるかを明示しておく必要がある．
-そこで本節では，Markingアクション集合 $A^M$ に対する距離推定手続きとして\textsc{EstimateDistToMarking}を示す．
+前述の通り，RAはMarked状態への到達距離を推定する枠組みである．
+しかし，\aref{subsec:marking_to_marked}で導入したアクションベースから状態ベースへの変換を用いる場合，判定用LTS $E_M$ を除くすべてのコンポーネントにおいて，ほぼ全状態がMarked状態として定義される．
+この状況下では，任意のMarked状態への距離を計算するRAのRank 1評価は，常に $1$ を返すことになり，探索の指針として機能しない．
 
-\textsc{EstimateDistToMarking}は，候補アクション$\hat{a}$がMarkingアクションであれば距離1を返し，そうでなければ，合成状態$\bm{s}$から（同期を無視すれば）状態を変化させ得るアクション集合$A^R$を介して，Gapとその先での推定距離の和の最小値を再帰的に求める．
-構造は\aref{alg:estimate_dist_to_state}（\textsc{EstimateDistToState}）と同型であり，終端条件がMarked状態ではなくMarkingアクションになっている点が相違である．
+そこで本研究では，探索履歴である到達済みMarked状態集合 $\bm{S}^M$ に依存せず，システムのアクション構造のみに基づいて目標までの距離を推定する手法として，Markingアクション集合 $A^M$ を直接のターゲットとする距離推定関数 \textsc{EstimateDistToMarking} を定義する．
+本関数は，探索の進行に伴って更新される $\bm{S}^M$ を参照しないため，探索の全期間を通じて一貫した静的な評価値を提供する．
 
-なお，\textsc{EstimateDistToMarking}は，探索到達済みMarked状態集合$\bm{S}^M$を基準とするRank 0の推定が利用できない状況，特に$\bm{S}^M=\emptyset$の場合に用いることを想定している．
-
+\textsc{EstimateDistToMarking}は，候補アクション$\hat{a}$がMarkingアクションであれば距離1を返し，そうでなければ，合成状態$\bm{s}$から，同期を無視した場合に状態を変化させ得るアクション集合$A^R$を介して，Gapとその先での推定距離の和の最小値を再帰的に求める．
+その構造は\aref{alg:estimate_dist_to_state}に示す \textsc{EstimateDistToState} と同型であり，終端条件がMarked状態ではなくMarkingアクションになっている点が相違である．
 
 \begin{algorithm}
   \caption{Ready AbstractionにおけるMarkingアクションまでの距離推定}
@@ -596,13 +596,19 @@ RAは，Marked状態への到達距離を推定する枠組みとして提案さ
       \Return $1$
     \EndIf
 
-    \LComment{各LTS上で，現在の状態から発火可能なアクションのうち，自己ループでないものの集合}
-    \For{$j = 1, 2, \ldots, n$}
-      \State $A^R_{E_j} \gets \{a \mid \exists s', (s_{E_j}, a, s') \in \Delta_{E_j}, s' \neq s_{E_j}\}$
-    \EndFor
-    \State $A^R \gets \bigcup_{j=1}^{n} A^R_{E_j}$ \Comment{Readyアクションの集合}
+    \LComment{各LTS上で，現在の状態から発火可能なアクション（Readyアクション）を収集}
+    \State $A^R \gets \bigcup_{i=1}^{n} \{a \mid \exists s, (s_{E_i}, a, s) \in \Delta_{E_i}, s \neq s_{E_i}, s \notin S^I_{E_i}\}$
 
-    \Return $\min_{a \in A^R \cup A^M}\{\textsc{CalculateGap}(\hat{a}, a) + \textsc{EstimateDistToMarking}(\bm{s}, a)\}$
+    \LComment{候補アクション $\hat{a}$ から構造的に到達可能なアクション集合 $A^*$ を構築}
+    \State $A^* \gets \emptyset$
+    \For{$i = 1, \ldots, n$}
+      \State $s'_{E_i} \gets s' \text{ where } (s_{E_i}, \hat{a}, s') \in \Delta_{E_i}$
+      \If{$s'_{E_i} \neq \bot \land s'_{E_i} \notin S^I_{E_i}$}
+        \State $A^* \gets A^* \cup \{ a^* \in A^R \mid T_{s'_{E_i} \to \{a^*\}} \neq \emptyset \}$
+      \EndIf
+    \EndFor
+
+    \Return $\min_{a^* \in A^* \cup A^M}\{\textsc{CalculateGap}(\bm{s}, \hat{a}, a^*) + \textsc{EstimateDistToMarking}(\bm{s}, a^*)\}$
 
     \EndFunction
   \end{algorithmic}
