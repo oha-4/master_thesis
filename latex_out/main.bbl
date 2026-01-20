@@ -10,6 +10,11 @@ Blai Bonet and Héctor Geffner.
 \newblock Planning as heuristic search.
 \newblock {\em Artificial Intelligence}, Vol. 129, No.~1, pp. 5--33, 2001.
 
+\bibitem{SupervisorLocalization}
+Kai Cai and W.~M. Wonham.
+\newblock Supervisor localization: A top-down approach to distributed control of discrete-event systems.
+\newblock {\em IEEE Transactions on Automatic Control}, Vol.~55, No.~3, pp. 605--618, 2010.
+
 \bibitem{6Scenarios}
 Daniel~Alfredo Ciolek, Victor Braberman, Nicolás D’Ippolito, Sebastián Sardiña, and Sebastián Uchitel.
 \newblock Compositional supervisory control via reactive synthesis and automated planning.
@@ -44,6 +49,21 @@ John~J. Enright and Peter~R. Wurman.
 Jing Huang and Ratnesh Kumar.
 \newblock Directed control of discrete event systems for safety and nonblocking.
 \newblock {\em IEEE Transactions on Automation Science and Engineering}, Vol.~5, No.~4, pp. 620--629, 2008.
+
+\bibitem{SupervisoryControlSynthesisOfDiscreteEventSystemsUsingACoordinationScheme}
+Jan Komenda, Tom{\'{a}}s Masopust, and Jan~H. van Schuppen.
+\newblock Supervisory control synthesis of discrete-event systems using a coordination scheme.
+\newblock {\em Autom.}, Vol.~48, No.~2, pp. 247--254, 2012.
+
+\bibitem{ProvingTheCorrectnessOfMultiprocessPrograms}
+L.~Lamport.
+\newblock Proving the correctness of multiprocess programs.
+\newblock {\em IEEE Transactions on Software Engineering}, Vol. SE-3, No.~2, pp. 125--143, 1977.
+
+\bibitem{DecentralizedSupervisoryControlOfDiscreteEventSystems}
+F.~Lin and W.M. Wonham.
+\newblock Decentralized supervisory control of discrete-event systems.
+\newblock {\em Information Sciences}, Vol.~44, No.~3, pp. 199--224, 1988.
 
 \bibitem{DiscreteControllerSynthesis}
 P.~J. Ramadge and W.~M. Wonham.

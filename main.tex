@@ -2072,6 +2072,31 @@ PMAの占有率が低いということは，静的解析から得られる構�
 
 \todo{以下の4点について触れ，本研究の立ち位置を明確にする．(1) 離散制御器合成における状態空間爆発への対処手法の変遷，(2) On-The-Flyを用いた他の分野の話（状態爆発系），(3) RAや機械学習を用いたヒューリスティック手法との対比，(4) 他の分野におけるLandmark Heuristic．}
 
+\section{スーパバイザ制御理論の基礎と大規模システムへの展開}
+
+並行して動作する複数のプロセスから構成されるシステムの正当性を保証することは，計算機科学および制御工学における長年の課題である．
+Lamport~\cite{ProvingTheCorrectnessOfMultiprocessPrograms}は，マルチプロセスプログラムの正当性証明において，プログラムが意図しない悪い状態に到達しないことを保証するSafetyと，プログラムがいずれ望ましい状態に到達することを保証するLivenessという2つの性質の証明が不可欠であると指摘した．
+これらの性質を，非同期に発生する離散的な事象（イベント）の列としてモデル化し，制御理論の枠組みで形式的に扱ったのが，RamadgeとWonhamによって提唱されたスーパバイザ制御理論（Supervisory Control Theory: SCT）である~\cite{DiscreteControllerSynthesis, DiscreteEventSystem}．
+
+SCTにおいて，制御対象である離散事象システム（DES）は形式言語の生成器（Generator）としてモデル化される．
+Ramadgeらは，システムが生成しうる言語（振る舞い）と，仕様として与えられた許容言語との包含関係に基づき，スーパバイザ（Supervisor）の存在条件を記述した~\cite{DiscreteControllerSynthesis}．
+彼らは，システムに対して禁止可能なイベント（Controllable Event）を動的に無効化することで，仕様を満たす最大の振る舞いである最大制御可能部分言語（Supremal Controllable Sublanguage）を合成できることを示した．
+これにより，Safety（仕様言語への包含）とSCTにおけるNon-Blocking（Marked状態への到達可能性）を数学的に保証するスーパバイザの自動生成が可能となった．
+
+しかし，システムが大規模化・分散化するにつれて，単一の集中型スーパバイザを合成することは計算量および実装の観点から困難となる．
+これに対し，LinとWonhamは，システムを複数の部分観測可能な局所スーパバイザ（Local Supervisor）によって制御する分散制御（Decentralized Control）の枠組みを提案した~\cite{DecentralizedSupervisoryControlOfDiscreteEventSystems}．
+分散制御では，各局所スーパバイザが部分的な情報のみに基づいて制御判断を行い，それらの制御判断を融合することで，全体としてのSafetyを実現する．
+
+また，大規模なシステムを効率的に扱うための階層的なアプローチも多数提案されている．
+CaiとWonhamは，全体として合成された全体スーパバイザ（Global Supervisor）を，各エージェントが持つべき局所制御器（Local Controller）へと分解するスーパバイザ・ローカリゼーション（Supervisor Localization）の手法を提案した~\cite{SupervisorLocalization}．
+この手法はトップダウンのアプローチにより，大域的な制御仕様を等価な局所制御ロジックへと配分することを可能にする．
+一方，Komendaらは，システムを複数のサブシステムとそれらを調停するコーディネータ（Coordinator）の組み合わせとして捉えるコーディネーションスキーム（Coordination Scheme）を提案した~\cite{SupervisoryControlSynthesisOfDiscreteEventSystemsUsingACoordinationScheme}．
+彼らは，条件付き制御可能性（Conditional Controllability）という概念を導入し，コーディネータを用いることで分散的な合成を行いながらも，大域的な仕様を満たす制御器を構成できることを示した．
+
+これらの研究は，DESの制御においてSafetyとNon-Blockingを保証するための堅牢な理論的基盤を提供している．
+しかし，全体スーパバイザを事前に構築する手法や，複雑な協調構造を必要とする手法は，依然として状態空間爆発の問題や設計の複雑さに直面する場合がある．
+特に，動的に変化する環境や未知の制約に対してリアルタイムに制御を行う場合，あるいは巨大な状態空間を持つシステムに対しては，全状態空間を事前に構築することなく，必要な経路のみを探索的に決定するOn-The-Fly探索の手法や，探索を効率化するためのヒューリスティック技術が重要となる．
+
 \chapter{結論}
 \label{chap:conclusion}
 
