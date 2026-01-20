@@ -1,10 +1,5 @@
 \begin{thebibliography}{10}
 
-\bibitem{DroneCoordinationScenario}
-Yuki Arioka, Takuto Yamauchi, and Kenji Tei.
-\newblock Pre-controller synthesis for runtime controller synthesis.
-\newblock In {\em 2023 IEEE 13th International Conference on Control System, Computing and Engineering (ICCSCE)}, pp. 161--166, 2023.
-
 \bibitem{Heuristic}
 Blai Bonet and Héctor Geffner.
 \newblock Planning as heuristic search.
@@ -65,6 +60,16 @@ F.~Lin and W.M. Wonham.
 \newblock Decentralized supervisory control of discrete-event systems.
 \newblock {\em Information Sciences}, Vol.~44, No.~3, pp. 199--224, 1988.
 
+\bibitem{ASurveyOnCompositionalAlgorithmsForVerificationAndSynthesisInSupervisoryControl}
+Robi Malik, Sahar Mohajerani, and Martin Fabian.
+\newblock A survey on compositional algorithms for verification and synthesis in supervisory control.
+\newblock {\em Discrete Event Dynamic Systems}, Vol.~33, No.~3, pp. 279--340, 2023.
+
+\bibitem{CompositionalSynthesisOfDiscreteEventSystemsUsingSynthesisAbstraction}
+Sahar Mohajerani, Robi Malik, Simon Ware, and Martin Fabian.
+\newblock Compositional synthesis of discrete event systems using synthesis abstraction.
+\newblock In {\em 2011 Chinese Control and Decision Conference (CCDC)}, pp. 1549--1554, 2011.
+
 \bibitem{DiscreteControllerSynthesis}
 P.~J. Ramadge and W.~M. Wonham.
 \newblock Supervisory control of a class of discrete event processes.
@@ -74,5 +79,35 @@ P.~J. Ramadge and W.~M. Wonham.
 P.J.G. Ramadge and W.M. Wonham.
 \newblock The control of discrete event systems.
 \newblock {\em Proceedings of the IEEE}, Vol.~77, No.~1, pp. 81--98, 1989.
+
+\bibitem{ConsolidatedDiscreteControllerSynthesis}
+Yamauchi Takuto, Li~Jialong, Tei Kenji, and Honiden Shinichi.
+\newblock ゲーム空間の一括構築による離散制御器合成の計算空間削減.
+\newblock 情報処理学会論文誌, Vol.~65, pp. 1221--1232, Aug 2024.
+
+\bibitem{StepwisePartialSynthesis}
+Yamauchi Takuto and Tei Kenji.
+\newblock 段階的な部分合成による離散制御器合成の分析空間削減.
+\newblock 電子情報通信学会論文誌D 情報・システム, Vol. J106-D, No.~4, pp. 218--230, 04 2023.
+
+\bibitem{ReducingTheComputationalEffortOfSymbolicSupervisorSynthesis}
+Sander Thuijsman, Dennis Hendriks, and Michel Reniers.
+\newblock Reducing the computational effort of symbolic supervisor synthesis.
+\newblock {\em Discrete Event Dynamic Systems}, Vol.~34, No.~4, pp. 689--732, 2024.
+
+\bibitem{ModularControlAndCoordinationOfDiscreteEventSystems}
+Kai~C. Wong and W.~Murray Wonham.
+\newblock Modular control and coordination of discrete-event systems.
+\newblock {\em Discrete Event Dynamic Systems}, Vol.~8, No.~3, pp. 247--297, 1998.
+
+\bibitem{ModularSupervisoryControlOfDiscreteEventSystems}
+W.~M. Wonham and P.~J. Ramadge.
+\newblock Modular supervisory control of discrete-event systems.
+\newblock {\em Mathematics of Control, Signals and Systems}, Vol.~1, No.~1, pp. 13--30, 1988.
+
+\bibitem{DroneCoordinationScenario}
+Arioka Yuki, Yamauchi Takuto, and Tei Kenji.
+\newblock Pre-controller synthesis for runtime controller synthesis.
+\newblock In {\em 2023 IEEE 13th International Conference on Control System, Computing and Engineering (ICCSCE)}, pp. 161--166, 2023.
 
 \end{thebibliography}
