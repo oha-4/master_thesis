@@ -10,6 +10,11 @@ Kai Cai and W.~M. Wonham.
 \newblock Supervisor localization: A top-down approach to distributed control of discrete-event systems.
 \newblock {\em IEEE Transactions on Automatic Control}, Vol.~55, No.~3, pp. 605--618, 2010.
 
+\bibitem{OnTheFlyForTimedGames}
+Franck Cassez, Alexandre David, Emmanuel Fleury, Kim~G. Larsen, and Didier Lime.
+\newblock Efficient on-the-fly algorithms for the analysis of timed games.
+\newblock In Mart{\'i}n Abadi and Luca de~Alfaro, editors, {\em CONCUR 2005 -- Concurrency Theory}, pp. 66--80, Berlin, Heidelberg, 2005. Springer Berlin Heidelberg.
+
 \bibitem{6Scenarios}
 Daniel~Alfredo Ciolek, Victor Braberman, Nicolás D’Ippolito, Sebastián Sardiña, and Sebastián Uchitel.
 \newblock Compositional supervisory control via reactive synthesis and automated planning.
@@ -29,6 +34,11 @@ Daniel Ciolek, Matias Duran, Florencia Zanollo, Nicolas Pazos, Juli\'{a}n Braier
 Thomas~H. Cormen, Charles~E. Leiserson, Ronald~L. Rivest, and Clifford Stein.
 \newblock {\em Introduction to Algorithms, 3rd Edition}.
 \newblock {MIT} Press, 2009.
+
+\bibitem{OnTheFlyForReachability}
+Mikael~Bisgaard Dahlsen-Jensen, Baptiste Fievet, Laure Petrucci, and Jaco~van de~Pol.
+\newblock On-the-fly algorithm for reachability in parametric timed games.
+\newblock In Bernd Finkbeiner and Laura Kov{\'a}cs, editors, {\em Tools and Algorithms for the Construction and Analysis of Systems}, pp. 194--212, Cham, 2024. Springer Nature Switzerland.
 
 \bibitem{ModelTransitionSystemAnalyser}
 Nicolas D'Ippolito, Dario Fischbein, Marsha Chechik, and Sebastian Uchitel.
@@ -64,6 +74,11 @@ F.~Lin and W.M. Wonham.
 Robi Malik, Sahar Mohajerani, and Martin Fabian.
 \newblock A survey on compositional algorithms for verification and synthesis in supervisory control.
 \newblock {\em Discrete Event Dynamic Systems}, Vol.~33, No.~3, pp. 279--340, 2023.
+
+\bibitem{SymbolicOnTheFlySynthesis}
+Sajed Miremadi and Bengt Lennartson.
+\newblock Symbolic on-the-fly synthesis in supervisory control theory.
+\newblock {\em IEEE Transactions on Control Systems Technology}, Vol.~24, No.~5, pp. 1705--1716, 2016.
 
 \bibitem{CompositionalSynthesisOfDiscreteEventSystemsUsingSynthesisAbstraction}
 Sahar Mohajerani, Robi Malik, Simon Ware, and Martin Fabian.
