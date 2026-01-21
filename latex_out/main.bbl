@@ -40,6 +40,11 @@ Mikael~Bisgaard Dahlsen-Jensen, Baptiste Fievet, Laure Petrucci, and Jaco~van de
 \newblock On-the-fly algorithm for reachability in parametric timed games.
 \newblock In Bernd Finkbeiner and Laura Kov{\'a}cs, editors, {\em Tools and Algorithms for the Construction and Analysis of Systems}, pp. 194--212, Cham, 2024. Springer Nature Switzerland.
 
+\bibitem{ReinforcementOnTheFly}
+Tomas Delgado, Marco~S\'{a}nchez Sorondo, V\'{\i}ctor Braberman, and Sebasti\'{a}n Uchitel.
+\newblock Exploration policies for on-the-fly controller synthesis: a reinforcement learning approach.
+\newblock In {\em Proceedings of the Thirty-Third International Conference on Automated Planning and Scheduling}, ICAPS '23. AAAI Press, 2023.
+
 \bibitem{ModelTransitionSystemAnalyser}
 Nicolas D'Ippolito, Dario Fischbein, Marsha Chechik, and Sebastian Uchitel.
 \newblock Mtsa: The modal transition system analyser.
