@@ -12,6 +12,18 @@
   keywords = {Planning, Strips, Heuristic search, Domain-independent heuristics, Forward/backward search, Non-optimal planning, Graphplan},
   abstract = {In the AIPS98 Planning Contest, the hsp planner showed that heuristic search planners can be competitive with state-of-the-art Graphplan and sat planners. Heuristic search planners like hsp transform planning problems into problems of heuristic search by automatically extracting heuristics from Strips encodings. They differ from specialized problem solvers such as those developed for the 24-Puzzle and Rubik's Cube in that they use a general declarative language for stating problems and a general mechanism for extracting heuristics from these representations. In this paper, we study a family of heuristic search planners that are based on a simple and general heuristic that assumes that action preconditions are independent. The heuristic is then used in the context of best-first and hill-climbing search algorithms, and is tested over a large collection of domains. We then consider variations and extensions such as reversing the direction of the search for speeding node evaluation, and extracting information about propositional invariants for avoiding dead-ends. We analyze the resulting planners, evaluate their performance, and explain when they do best. We also compare the performance of these planners with two state-of-the-art planners, and show that the simplest planner based on a pure best-first search yields the most solid performance over a large set of problems. We also discuss the strengths and limitations of this approach, establish a correspondence between heuristic search planning and Graphplan, and briefly survey recent ideas that can reduce the current gap in performance between general heuristic search planners and specialized solvers.}
 }
+@article{CyclicLandmarkHeuristic,
+  title   = {Exploiting Cyclic Dependencies in Landmark Heuristics},
+  volume  = {31},
+  url     = {https://ojs.aaai.org/index.php/ICAPS/article/view/15948},
+  doi     = {10.1609/icaps.v31i1.15948},
+  number  = {1},
+  journal = {Proceedings of the International Conference on Automated Planning and Scheduling},
+  author  = {Büchner, Clemens and Keller, Thomas and Helmert, Malte},
+  year    = {2021},
+  month   = {May},
+  pages   = {65-73}
+}
 @article{SupervisorLocalization,
   author   = {Cai, Kai and Wonham, W. M.},
   journal  = {IEEE Transactions on Automatic Control},
@@ -159,6 +171,21 @@
   numpages   = {10},
   keywords   = {linear temporal logic, model-checking, software architecture analysis}
 }
+@article{LandmarksInPlanning,
+  author     = {Hoffmann, J\"{o}rg and Porteous, Julie and Sebastia, Laura},
+  title      = {Ordered landmarks in planning},
+  year       = {2004},
+  issue_date = {July 2004},
+  publisher  = {AI Access Foundation},
+  address    = {El Segundo, CA, USA},
+  volume     = {22},
+  number     = {1},
+  issn       = {1076-9757},
+  journal    = {J. Artif. Int. Res.},
+  month      = nov,
+  pages      = {215–278},
+  numpages   = {64}
+}
 @article{DirectedController,
   author   = {Huang, Jing and Kumar, Ratnesh},
   journal  = {IEEE Transactions on Automation Science and Engineering},
@@ -186,6 +213,18 @@
   timestamp = {Thu, 20 Feb 2020 09:16:10 +0100},
   biburl    = {https://dblp.org/rec/journals/automatica/KomendaMS12.bib},
   bibsource = {dblp computer science bibliography, https://dblp.org}
+}
+@inproceedings{CostOptimalPlanningWithLandmarks,
+  author    = {Karpas, Erez and Domshlak, Carmel},
+  title     = {Cost-optimal planning with landmarks},
+  year      = {2009},
+  publisher = {Morgan Kaufmann Publishers Inc.},
+  address   = {San Francisco, CA, USA},
+  booktitle = {Proceedings of the 21st International Joint Conference on Artificial Intelligence},
+  pages     = {1728-1733},
+  numpages  = {6},
+  location  = {Pasadena, California, USA},
+  series    = {IJCAI'09}
 }
 @article{ProvingTheCorrectnessOfMultiprocessPrograms,
   author   = {Lamport, L.},
@@ -257,6 +296,21 @@
   pages    = {81-98},
   keywords = {Control systems;Discrete event systems;Automatic control;Operating systems;Control theory;Computational complexity;Automata;Formal languages},
   doi      = {10.1109/5.21072}
+}
+@article{LAMAPlanner,
+  author     = {Richter, Silvia and Westphal, Matthias},
+  title      = {The LAMA planner: guiding cost-based anytime planning with landmarks},
+  year       = {2010},
+  issue_date = {September 2010},
+  publisher  = {AI Access Foundation},
+  address    = {El Segundo, CA, USA},
+  volume     = {39},
+  number     = {1},
+  issn       = {1076-9757},
+  journal    = {J. Artif. Int. Res.},
+  month      = sep,
+  pages      = {127–177},
+  numpages   = {51}
 }
 @article{ConsolidatedDiscreteControllerSynthesis,
   author  = {Takuto, Yamauchi and Jialong, Li and Kenji, Tei and Shinichi, Honiden},

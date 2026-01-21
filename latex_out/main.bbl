@@ -5,6 +5,11 @@ Blai Bonet and Héctor Geffner.
 \newblock Planning as heuristic search.
 \newblock {\em Artificial Intelligence}, Vol. 129, No.~1, pp. 5--33, 2001.
 
+\bibitem{CyclicLandmarkHeuristic}
+Clemens Büchner, Thomas Keller, and Malte Helmert.
+\newblock Exploiting cyclic dependencies in landmark heuristics.
+\newblock {\em Proceedings of the International Conference on Automated Planning and Scheduling}, Vol.~31, No.~1, pp. 65--73, May 2021.
+
 \bibitem{SupervisorLocalization}
 Kai Cai and W.~M. Wonham.
 \newblock Supervisor localization: A top-down approach to distributed control of discrete-event systems.
@@ -55,10 +60,20 @@ John~J. Enright and Peter~R. Wurman.
 \newblock Optimization and coordinated autonomy in mobile fulfillment systems.
 \newblock In {\em Proceedings of the 9th AAAI Conference on Automated Action Planning for Autonomous Mobile Robots}, AAAIWS'11-09, pp. 33--38. AAAI Press, 2011.
 
+\bibitem{LandmarksInPlanning}
+J\"{o}rg Hoffmann, Julie Porteous, and Laura Sebastia.
+\newblock Ordered landmarks in planning.
+\newblock {\em J. Artif. Int. Res.}, Vol.~22, No.~1, p. 215–278, November 2004.
+
 \bibitem{DirectedController}
 Jing Huang and Ratnesh Kumar.
 \newblock Directed control of discrete event systems for safety and nonblocking.
 \newblock {\em IEEE Transactions on Automation Science and Engineering}, Vol.~5, No.~4, pp. 620--629, 2008.
+
+\bibitem{CostOptimalPlanningWithLandmarks}
+Erez Karpas and Carmel Domshlak.
+\newblock Cost-optimal planning with landmarks.
+\newblock In {\em Proceedings of the 21st International Joint Conference on Artificial Intelligence}, IJCAI'09, pp. 1728--1733, San Francisco, CA, USA, 2009. Morgan Kaufmann Publishers Inc.
 
 \bibitem{SupervisoryControlSynthesisOfDiscreteEventSystemsUsingACoordinationScheme}
 Jan Komenda, Tom{\'{a}}s Masopust, and Jan~H. van Schuppen.
@@ -99,6 +114,11 @@ P.~J. Ramadge and W.~M. Wonham.
 P.J.G. Ramadge and W.M. Wonham.
 \newblock The control of discrete event systems.
 \newblock {\em Proceedings of the IEEE}, Vol.~77, No.~1, pp. 81--98, 1989.
+
+\bibitem{LAMAPlanner}
+Silvia Richter and Matthias Westphal.
+\newblock The lama planner: guiding cost-based anytime planning with landmarks.
+\newblock {\em J. Artif. Int. Res.}, Vol.~39, No.~1, p. 127–177, September 2010.
 
 \bibitem{ConsolidatedDiscreteControllerSynthesis}
 Yamauchi Takuto, Li~Jialong, Tei Kenji, and Honiden Shinichi.
