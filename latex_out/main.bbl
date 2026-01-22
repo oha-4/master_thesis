@@ -1,5 +1,10 @@
 \begin{thebibliography}{10}
 
+\bibitem{DroneCoordinationScenario}
+Yuki Arioka, Takuto Yamauchi, and Kenji Tei.
+\newblock Pre-controller synthesis for runtime controller synthesis.
+\newblock In {\em 2023 IEEE 13th International Conference on Control System, Computing and Engineering (ICCSCE)}, pp. 161--166, 2023.
+
 \bibitem{Heuristic}
 Blai Bonet and Héctor Geffner.
 \newblock Planning as heuristic search.
@@ -120,16 +125,6 @@ Silvia Richter and Matthias Westphal.
 \newblock The lama planner: guiding cost-based anytime planning with landmarks.
 \newblock {\em J. Artif. Int. Res.}, Vol.~39, No.~1, p. 127–177, September 2010.
 
-\bibitem{ConsolidatedDiscreteControllerSynthesis}
-Yamauchi Takuto, Li~Jialong, Tei Kenji, and Honiden Shinichi.
-\newblock ゲーム空間の一括構築による離散制御器合成の計算空間削減.
-\newblock 情報処理学会論文誌, Vol.~65, pp. 1221--1232, Aug 2024.
-
-\bibitem{StepwisePartialSynthesis}
-Yamauchi Takuto and Tei Kenji.
-\newblock 段階的な部分合成による離散制御器合成の分析空間削減.
-\newblock 電子情報通信学会論文誌D 情報・システム, Vol. J106-D, No.~4, pp. 218--230, 04 2023.
-
 \bibitem{ReducingTheComputationalEffortOfSymbolicSupervisorSynthesis}
 Sander Thuijsman, Dennis Hendriks, and Michel Reniers.
 \newblock Reducing the computational effort of symbolic supervisor synthesis.
@@ -145,9 +140,14 @@ W.~M. Wonham and P.~J. Ramadge.
 \newblock Modular supervisory control of discrete-event systems.
 \newblock {\em Mathematics of Control, Signals and Systems}, Vol.~1, No.~1, pp. 13--30, 1988.
 
-\bibitem{DroneCoordinationScenario}
-Arioka Yuki, Yamauchi Takuto, and Tei Kenji.
-\newblock Pre-controller synthesis for runtime controller synthesis.
-\newblock In {\em 2023 IEEE 13th International Conference on Control System, Computing and Engineering (ICCSCE)}, pp. 161--166, 2023.
+\bibitem{ConsolidatedDiscreteControllerSynthesis}
+Takuto Yamauchi, Jialong Li, Kenji Tei, and Shinichi Honiden.
+\newblock ゲーム空間の一括構築による離散制御器合成の計算空間削減.
+\newblock 情報処理学会論文誌, Vol.~65, pp. 1221--1232, Aug 2024.
+
+\bibitem{StepwisePartialSynthesis}
+Takuto Yamauchi and Kenji Tei.
+\newblock 段階的な部分合成による離散制御器合成の分析空間削減.
+\newblock 電子情報通信学会論文誌D 情報・システム, Vol. J106-D, No.~4, pp. 218--230, 04 2023.
 
 \end{thebibliography}
