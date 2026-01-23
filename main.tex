@@ -4,7 +4,7 @@
 \usepackage{cscover}
 \usepackage{graphicx}
 \usepackage[nobreak]{cite}
-\usepackage[a4paper,dvipdfmx,pdfdisplaydoctitle=true,%
+\usepackage[dvipdfmx,pdfdisplaydoctitle=true,%
 	bookmarks=true,bookmarksnumbered=true,bookmarkstype=toc,bookmarksopen=true%
 ]{hyperref}
 \usepackage{pxjahyper}
@@ -45,7 +45,6 @@
 \UseTblrLibrary{siunitx}
 \usepackage{thmtools}
 \usepackage{tikz}
-\usepackage{todonotes}
 \usepackage{prettyref}
 
 \declaretheoremstyle[
@@ -104,9 +103,6 @@
 \newrefformat{alg}{アルゴリズム\ref*{#1}}
 \newcommand\aref[1]{\hyperref[#1]{\prettyref{#1}}}
 
-\setuptodonotes{inline,backgroundcolor=red!15,bordercolor=red}
-\newcommand{\memo}[1]{\todo[inline,backgroundcolor=green!15,bordercolor=green]{#1}}
-
 \makeatletter
 
 \renewcommand{\fps@algorithm}{htbp}
@@ -136,7 +132,7 @@
 
 本研究では，目標達成のために構造上回避不可能なアクションをPre-Markingアクションとして定義し，これらを探索の中間目標（ランドマーク）として利用する新たなヒューリスティック手法「Landmark Ready Abstraction（LRA）」を提案した．
 提案手法は，事前解析によってシステム全体の依存関係を階層的に抽出し，現在の状態で解決すべきボトルネックまでの距離を動的に算出することで，同期制約を考慮した大域的な経路選択を実現する．
-また，評価対象を不可避なアクションに厳選することで，1ステップあたりの計算コストの削減も図った．
+また，評価対象を不可避なアクションに厳選することで，1ステップあたりの計算コストの削減も図る．
 
 提案手法を実装し，複数のベンチマーク問題を用いて評価実験を行った結果，LRAは従来手法と比較して探索状態数を大幅に削減し，特に複雑な同期を要するシナリオにおいて極めて高い探索効率を示した．
 また，コンポーネント数が増大した環境においても，ヒューリスティックの計算負荷を低く抑えることで，合成時間を最大で300倍以上短縮することに成功した．
@@ -563,7 +559,7 @@ Rank 0での推定が不可能な場合に限り，任意のMarked状態への�
 \subsection{距離推定の中核}
 
 Ready Abstractionにおける距離推定の手続きを\aref{alg:estimate_dist_to_state}に示す．
-この関数 $\textsc{EstimateDistToState}$ は，現在の合成状態 $\bm{s}$，評価対象のアクション $\hat{a}$，および目標状態 $s^*_{E_i}$ を入力とし，推定距離 $d$ を算出する．
+この関数 \textsc{EstimateDistToState} は，現在の合成状態 $\bm{s}$，評価対象のアクション $\hat{a}$，および目標状態 $s^*_{E_i}$ を入力とし，推定距離 $d$ を算出する．
 
 本アルゴリズムでは，推定のために以下の2つの補助関数を利用する．
 
@@ -703,7 +699,7 @@ RAの距離推定アルゴリズム（\aref{alg:estimate_dist_to_state}）は，
 このとき，同期が必要なアクションへのパスは，パートナーの到着を待つための遷移（同期待ち）を含める必要があるため，RAのグラフ上では遠い，あるいは到達困難と判定されやすい．
 対照的に，同期を必要とせず単独で進行でき，かつ局所的に目標に近い場所へ遷移できるアクションが存在する場合，RAはその局所的な遷移コストの低さを優先して評価する．
 
-RAはこの他者の同期待ちという大域的な制約を考慮できず，各コンポーネントが局所的な最短経路を選択し続けるような局所最適化に基づいた評価を下すため，結果として合流不可能な経路や，効率の悪い状態を優先的に探索する結果となる．
+RAはこの他コンポーネントの同期待ちという大域的な制約を考慮できず，各コンポーネントが局所的な最短経路を選択し続けるような局所最適化に基づいた評価を下すため，結果として合流不可能な経路や，効率の悪い状態を優先的に探索する結果となる．
 
 \subsection{具体的な不適合例：金属加工システム}
 \label{subsec:ra_metal_processing_example}
@@ -716,7 +712,7 @@ RAが不適切な誘導を行う具体的なシナリオとして，\aref{fig:me
 
 環境モデルは，初期状態から「金属準備」を経て待機状態（状態1）へ遷移する．この状態1を起点として，2つの経路が存在する．
 1つ目は「溶解」，「成形」，「冷却」を行い，再び待機状態に戻る加工サイクルである．
-このサイクルは0回以上実行可能である．
+このサイクルは任意の回数実行可能である．
 2つ目は「研磨」や「皮膜」を施し，最後に「出荷」して初期状態に戻る仕上げ・出荷工程である．
 
 要求モデルは，製品の品質担保のために「成形」が1度以上発火されることを強制する．
@@ -902,7 +898,7 @@ RAのもう一つの課題は，ヒューリスティック関数の評価プロ
   \item Rank 1の評価: 上記が到達不能な場合，モデル上の全てのMarked状態への距離を計算する．
 \end{enumerate}
 
-すなわち，アクションを1つ選択するたびに，最大で $2n$ 回の距離推定関数（\textsc{EstimateDistToState}）が呼び出されることになる．
+すなわち，アクションを1つ選択するたびに，最大で $2n$ 回の距離推定関数（\textsc{Estimate\-Dist\-To\-State}）が呼び出されることになる．
 ここで呼び出される距離推定関数は，\aref{chap:background}で述べた通り，Readyアクショングラフ上の探索を行う処理である．
 単一の計算は多項式時間で完了するが，状態や遷移に依存した動的な計算処理を伴う．
 
