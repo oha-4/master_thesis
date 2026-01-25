@@ -26,17 +26,17 @@ Franck Cassez, Alexandre David, Emmanuel Fleury, Kim~G. Larsen, and Didier Lime.
 \newblock In Mart{\'i}n Abadi and Luca de~Alfaro, editors, {\em CONCUR 2005 -- Concurrency Theory}, pp. 66--80, Berlin, Heidelberg, 2005. Springer Berlin Heidelberg.
 
 \bibitem{6Scenarios}
-Daniel~Alfredo Ciolek, Victor Braberman, Nicolás D’Ippolito, Sebastián Sardiña, and Sebastián Uchitel.
+Daniel Ciolek, Víctor Braberman, Nicolás D'Ippolito, Sebastián Sardiña, and Sebastián Uchitel.
 \newblock Compositional supervisory control via reactive synthesis and automated planning.
 \newblock {\em IEEE Transactions on Automatic Control}, Vol.~65, No.~8, pp. 3502--3516, 2020.
 
 \bibitem{DirectedControllerSynthesis}
-Daniel Ciolek, Victor Braberman, Nicolás D'Ippolito, and Sebastián Uchitel.
+Daniel Ciolek, Víctor Braberman, Nicolás D'Ippolito, and Sebastián Uchitel.
 \newblock Directed controller synthesis of discrete event systems: Taming composition with heuristics.
 \newblock In {\em 2016 IEEE 55th Conference on Decision and Control (CDC)}, pp. 4764--4769, 2016.
 
 \bibitem{ReadyAbstraction}
-Daniel Ciolek, Matias Duran, Florencia Zanollo, Nicolas Pazos, Juli\'{a}n Braier, Victor Braberman, Nicolas D’Ippolito, and Sebastian Uchitel.
+Daniel Ciolek, Matias Duran, Florencia Zanollo, Nicolas Pazos, Julián Braier, Víctor Braberman, Nicolás D'Ippolito, and Sebastián Uchitel.
 \newblock On-the-fly informed search of non-blocking directed controllers.
 \newblock {\em Automatica}, Vol. 147, No.~C, January 2023.
 
@@ -51,12 +51,12 @@ Mikael~Bisgaard Dahlsen-Jensen, Baptiste Fievet, Laure Petrucci, and Jaco~van de
 \newblock In Bernd Finkbeiner and Laura Kov{\'a}cs, editors, {\em Tools and Algorithms for the Construction and Analysis of Systems}, pp. 194--212, Cham, 2024. Springer Nature Switzerland.
 
 \bibitem{ReinforcementOnTheFly}
-Tomas Delgado, Marco~S\'{a}nchez Sorondo, V\'{\i}ctor Braberman, and Sebasti\'{a}n Uchitel.
+Tomas Delgado, Marco~Sánchez Sorondo, Víctor Braberman, and Sebastián Uchitel.
 \newblock Exploration policies for on-the-fly controller synthesis: a reinforcement learning approach.
 \newblock In {\em Proceedings of the Thirty-Third International Conference on Automated Planning and Scheduling}, ICAPS '23. AAAI Press, 2023.
 
 \bibitem{ModelTransitionSystemAnalyser}
-Nicolas D'Ippolito, Dario Fischbein, Marsha Chechik, and Sebastian Uchitel.
+Nicolás D'Ippolito, Dario Fischbein, Marsha Chechik, and Sebastián Uchitel.
 \newblock Mtsa: The modal transition system analyser.
 \newblock In {\em 2008 23rd IEEE/ACM International Conference on Automated Software Engineering}, pp. 475--476, 2008.
 
@@ -116,7 +116,7 @@ P.~J. Ramadge and W.~M. Wonham.
 \newblock {\em SIAM Journal on Control and Optimization}, Vol.~25, No.~1, pp. 206--230, 1987.
 
 \bibitem{DiscreteEventSystem}
-P.J.G. Ramadge and W.M. Wonham.
+P.~J. Ramadge and W.~M. Wonham.
 \newblock The control of discrete event systems.
 \newblock {\em Proceedings of the IEEE}, Vol.~77, No.~1, pp. 81--98, 1989.
 
